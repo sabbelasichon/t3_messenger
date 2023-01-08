@@ -1,0 +1,10 @@
+/Build/ export-ignore
+/Tests/ export-ignore
+/.ddev/ export-ignore
+/.gitattributes export-ignore
+/.phpstorm.meta.php export-ignore
+/.gitignore export-ignore
+/phpstan.neon export-ignore
+/phpstan-baseline.neon export-ignore
+/.editorconfig export-ignore
+/ecs.php export-ignore

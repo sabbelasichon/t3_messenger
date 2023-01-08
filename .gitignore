@@ -1,0 +1,8 @@
+.idea
+.Build
+.php_cs
+.php_cs.cache
+composer.lock
+var
+Tests/Build/.phpunit.result.cache
+config

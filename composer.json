@@ -1,0 +1,94 @@
+{
+  "name": "ssch/t3-messenger",
+  "type": "typo3-cms-extension",
+  "description": "Wrapper for Symfony Messenger",
+  "license": "GPL-2.0+",
+  "homepage": "http://www.schreibersebastian.de",
+  "keywords": [
+    "Messenger"
+  ],
+  "authors": [
+    {
+      "name": "Sebastian Schreiber",
+      "email": "breakpoint@schreibersebastian.de",
+      "role": "Developer",
+      "homepage": "http://www.schreibersebastian.de"
+    }
+  ],
+  "require": {
+    "php": "^7.4 || ^8.0",
+    "typo3/cms-core": "^10.4 || ^11.5 || ^12.0",
+    "typo3/cms-extbase": "^10.4 || ^11.5 || ^12.0",
+    "symfony/messenger": "^5.0 || 6.0"
+  },
+  "require-dev": {
+    "symplify/easy-coding-standard": "^11.1",
+    "php-parallel-lint/php-parallel-lint": "^1.3",
+    "phpstan/phpstan": "^1.8",
+    "phpstan/phpstan-phpunit": "^1.2",
+    "phpstan/phpstan-strict-rules": "^1.4",
+    "saschaegerer/phpstan-typo3": "^1.8",
+    "phpstan/extension-installer": "^1.2",
+    "typo3/testing-framework": "^6.16",
+    "helhum/typo3-console": "^7.1"
+  },
+  "replace": {
+    "typo3-ter/t3-messenger": "self.version"
+  },
+  "autoload": {
+    "psr-4": {
+      "Ssch\\T3Messenger\\": "Classes"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Ssch\\T3Messenger\\Tests\\": "Tests"
+    }
+  },
+  "config": {
+    "vendor-dir": ".Build/vendor",
+    "bin-dir": ".Build/bin",
+    "preferred-install": {
+      "typo3/cms": "source",
+      "typo3/cms-core": "source",
+      "*": "dist"
+    },
+    "allow-plugins": {
+      "typo3/class-alias-loader": true,
+      "typo3/cms-composer-installers": true,
+      "phpstan/extension-installer": true
+    }
+  },
+  "scripts": {
+    "post-autoload-dump": [
+      "mkdir -p .Build/Web/typo3conf/ext/",
+      "[ -L .Build/Web/typo3conf/ext/t3_messenger ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/t3_messenger"
+    ],
+    "analyze": "phpstan analyse --ansi --memory-limit=-1",
+    "test-php-lint": [
+      ".Build/bin/parallel-lint ./Classes/",
+      ".Build/bin/parallel-lint ./Configuration/TCA/",
+      ".Build/bin/parallel-lint ./Tests/"
+    ],
+    "lint-php": "parallel-lint Tests Classes Configuration",
+    "check-style": "ecs check --ansi",
+    "fix-style": [
+      "ecs check --fix --ansi"
+    ],
+    "test-unit": [
+      ".Build/bin/phpunit --configuration Tests/Build/UnitTests.xml"
+    ],
+    "test-functional": [
+      ".Build/bin/phpunit --configuration Tests/Build/FunctionalTests.xml"
+    ]
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    },
+    "typo3/cms": {
+      "extension-key": "t3_messenger",
+      "web-dir": ".Build/Web"
+    }
+  }
+}

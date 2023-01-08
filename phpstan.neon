@@ -1,0 +1,10 @@
+parameters:
+  editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
+  level: 8
+  paths:
+    - Classes
+    - Tests
+    - Configuration
+  excludePaths:
+    analyse:
+      -  Tests/Functional/Fixtures/Extensions/*
