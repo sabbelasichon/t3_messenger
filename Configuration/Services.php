@@ -9,6 +9,7 @@ declare(strict_types=1);
  * LICENSE.txt file that was distributed with this source code.
  */
 
+use Ssch\T3Messenger\Cache\Psr6CacheAdapter;
 use Ssch\T3Messenger\Console\MyDummyConsoleCommand;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
 use Ssch\T3Messenger\Middleware\ValidationMiddleware;
@@ -61,6 +62,8 @@ use Symfony\Component\Messenger\Transport\Sync\SyncTransportFactory;
 use Symfony\Component\Messenger\Transport\TransportFactory;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 
 return static function (ContainerConfigurator $containerConfigurator, ContainerBuilder $containerBuilder): void {
     $services = $containerConfigurator->services();
@@ -72,6 +75,12 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $services->load('Ssch\\T3Messenger\\', __DIR__ . '/../Classes/')->exclude([__DIR__ . '/../Classes/Command']);
 
     $services->set('event_dispatcher', EventDispatcher::class);
+    $services->set('cache.messenger', FrontendInterface::class)
+        ->factory([service(CacheManager::class), 'getCache'])
+        ->args(['extbase']);
+
+    $services->set(Psr6CacheAdapter::class)->args([service('cache.messenger')]);
+    $services->alias('cache.messenger.restart_workers_signal', Psr6CacheAdapter::class);
 
     $services
         ->alias('messenger.default_serializer', 'messenger.transport.native_php_serializer')
@@ -142,8 +151,8 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->args([abstract_arg('failure transports')])
         ->set('messenger.listener.dispatch_pcntl_signal_listener', DispatchPcntlSignalListener::class)
 
-//        ->set('messenger.listener.stop_worker_on_restart_signal_listener', StopWorkerOnRestartSignalListener::class)
-//        ->args([service('cache.messenger.restart_workers_signal')])
+        ->set('messenger.listener.stop_worker_on_restart_signal_listener', StopWorkerOnRestartSignalListener::class)
+        ->args([service('cache.messenger.restart_workers_signal')])
 
         ->set('messenger.listener.stop_worker_on_sigterm_signal_listener', StopWorkerOnSigtermSignalListener::class)
         ->set('messenger.routable_message_bus', RoutableMessageBus::class)
@@ -181,11 +190,9 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $services->set('console.command.messenger_failed_messages_remove', FailedMessagesRemoveCommand::class)
         ->args([abstract_arg('Default failure receiver name'), abstract_arg('Receivers')]);
 
-    //    $services->set('console.command.messenger_stop_workers', StopWorkersCommand::class)
-    //        ->args([
-    //            service('cache.messenger.restart_workers_signal'),
-    //        ])
-    //        ->tag('console.command');
+    $services->set('console.command.messenger_stop_workers', StopWorkersCommand::class)
+        ->args([service('cache.messenger.restart_workers_signal')])
+        ->tag('console.command');
 
     $services->set('console.command.messenger_consume_messages', ConsumeMessagesCommand::class)
         ->args([
