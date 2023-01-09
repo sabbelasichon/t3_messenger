@@ -34,7 +34,6 @@ CODE_SAMPLE;
         __DIR__ . '/Tests',
         __DIR__ . '/Configuration',
         __DIR__ . '/ecs.php',
-        __DIR__ . '/rector.php',
     ]);
 
     $ecsConfig->ruleWithConfiguration(ArraySyntaxFixer::class, [
