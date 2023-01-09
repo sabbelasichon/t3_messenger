@@ -28,7 +28,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use TYPO3\CMS\Core\Core\Bootstrap;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Log\Channel;
@@ -51,10 +50,6 @@ final class T3MessengerPass implements CompilerPassInterface
 
         if (count($config) === 0) {
             return;
-        }
-
-        if (! interface_exists(DenormalizerInterface::class)) {
-            $container->removeDefinition('serializer.normalizer.flatten_exception');
         }
 
         if (ContainerBuilder::willBeAvailable(

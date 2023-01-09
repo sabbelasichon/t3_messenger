@@ -60,6 +60,7 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\Sync\SyncTransportFactory;
 use Symfony\Component\Messenger\Transport\TransportFactory;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 return static function (ContainerConfigurator $containerConfigurator, ContainerBuilder $containerBuilder): void {
     $services = $containerConfigurator->services();
@@ -85,10 +86,6 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         // Message encoding/decoding
         ->set('messenger.transport.symfony_serializer', Serializer::class)
         ->args([service('serializer'), abstract_arg('format'), abstract_arg('context')])
-        ->set('serializer.normalizer.flatten_exception', FlattenExceptionNormalizer::class)
-        ->tag('serializer.normalizer', [
-            'priority' => -880,
-        ])
         ->set('messenger.transport.native_php_serializer', PhpSerializer::class)
         // Middleware
         ->set('messenger.middleware.handle_message', HandleMessageMiddleware::class)
@@ -143,16 +140,22 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             SendFailedMessageToFailureTransportListener::class
         )
         ->args([abstract_arg('failure transports')])
-
         ->set('messenger.listener.dispatch_pcntl_signal_listener', DispatchPcntlSignalListener::class)
 
 //        ->set('messenger.listener.stop_worker_on_restart_signal_listener', StopWorkerOnRestartSignalListener::class)
 //        ->args([service('cache.messenger.restart_workers_signal')])
 
         ->set('messenger.listener.stop_worker_on_sigterm_signal_listener', StopWorkerOnSigtermSignalListener::class)
-
         ->set('messenger.routable_message_bus', RoutableMessageBus::class)
         ->args([abstract_arg('message bus locator'), service('messenger.default_bus')]);
+
+    // Add Normalizer if symfony serializer is available
+    if (interface_exists(DenormalizerInterface::class)) {
+        $services->set('serializer.normalizer.flatten_exception', FlattenExceptionNormalizer::class)
+            ->tag('serializer.normalizer', [
+                'priority' => -880,
+            ]);
+    }
 
     // Add messenger commands
     $services->set('console.command.messenger_debug', DebugCommand::class)

@@ -1,13 +1,8 @@
-- Abhängigkeit zum Symfony Serializer entfernen -> https://symfony.com/doc/current/messenger.html#serializing-messages
 - Tests erstellen
-
-
 
 Missing Parts
 - How to enforce failed messages?
 - Middleware für RoutingContext erstellen
-- Verschiedene Transports testen
-- Add different middlewares to different buses
 - Stop Workers command
 
 
