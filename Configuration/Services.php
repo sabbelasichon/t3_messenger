@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Ssch\T3Messenger\Console\MyDummyConsoleCommand;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
+use Ssch\T3Messenger\Middleware\ValidationMiddleware;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -98,6 +99,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->set('messenger.middleware.dispatch_after_current_bus', DispatchAfterCurrentBusMiddleware::class)
         ->set('messenger.middleware.reject_redelivered_message_middleware', RejectRedeliveredMessageMiddleware::class)
         ->set('messenger.middleware.failed_message_processing_middleware', FailedMessageProcessingMiddleware::class)
+        ->set('messenger.middleware.validation', ValidationMiddleware::class)
         // Discovery
         ->set('messenger.receiver_locator', ServiceLocator::class)
         ->args([[]])

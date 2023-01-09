@@ -5,13 +5,14 @@
 
 Missing Parts
 - How to enforce failed messages?
-- Middleware für RoutingContext und Valdation erstellen
+- Middleware für RoutingContext erstellen
 - Verschiedene Transports testen
 - Add different middlewares to different buses
 - Stop Workers command
-- Documentation
+
 
 Nice to have before releasing
+- Documentation
 - messenger:stats command part of 6.2
 - RateLimiter für consume command ggf. konfigurieren RateLimiter Komponente
 - Monitoring UI in the Backend
