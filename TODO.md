@@ -6,8 +6,10 @@
 
 Missing Parts
 - messenger:stats command part of 6.2
-- RateLimiter für consume command ggf. konfigurieren
-- How to enforce failed messages
+- RateLimiter für consume command ggf. konfigurieren RateLimiter Komponente
+- How to enforce failed messages?
 - Middleware für RoutingContext und Valdation erstellen
 - Verschiedene Transports testen
 - Add different middlewares to different buses
+- Monitoring UI in the Backend
+- Stop Workers command

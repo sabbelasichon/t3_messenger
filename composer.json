@@ -33,7 +33,11 @@
     "saschaegerer/phpstan-typo3": "^1.8",
     "phpstan/extension-installer": "^1.2",
     "typo3/testing-framework": "^6.16",
-    "helhum/typo3-console": "^7.1"
+    "helhum/typo3-console": "^7.1",
+    "symfony/amqp-messenger": "^5.4 || ^6.2",
+    "symfony/beanstalkd-messenger": "^5.4 || ^6.2",
+    "symfony/amazon-sqs-messenger": "^5.4 || ^6.2",
+    "symfony/redis-messenger": "^5.4 || ^6.2"
   },
   "replace": {
     "typo3-ter/t3-messenger": "self.version"
