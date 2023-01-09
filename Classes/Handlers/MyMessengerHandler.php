@@ -12,11 +12,18 @@ declare(strict_types=1);
 namespace Ssch\T3Messenger\Handlers;
 
 use Ssch\T3Messenger\Command\MyCommand;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
-final class MyMessengerHandler implements MessageHandlerInterface
+final class MyMessengerHandler implements MessageSubscriberInterface
 {
-    public function __invoke(MyCommand $command): void
+    public function firstMessageMethod(MyCommand $command): void
     {
+    }
+
+    public static function getHandledMessages(): iterable
+    {
+        yield MyCommand::class => [
+            'method' => 'firstMessageMethod',
+        ];
     }
 }

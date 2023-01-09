@@ -10,6 +10,9 @@ declare(strict_types=1);
  */
 
 return [
+    'failure_transport' => null,
+    'transports' => [],
+    'routing' => [],
     'default_bus' => 'command.bus',
     'buses' => [
         'command.bus' => [],
