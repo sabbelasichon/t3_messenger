@@ -11,19 +11,25 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\Handlers;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Ssch\T3Messenger\Command\MyCommand;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
-final class MyMessengerHandler implements MessageSubscriberInterface
+final class MyMessengerHandler implements MessageSubscriberInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     public function firstMessageMethod(MyCommand $command): void
     {
+        throw new \RuntimeException('A problem occured');
     }
 
     public static function getHandledMessages(): iterable
     {
         yield MyCommand::class => [
             'method' => 'firstMessageMethod',
+            'bus' => 'command.bus',
         ];
     }
 }

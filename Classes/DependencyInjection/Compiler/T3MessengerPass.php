@@ -179,7 +179,7 @@ final class T3MessengerPass implements CompilerPassInterface
 
         $failureTransportsByName = [];
         foreach ($config['transports'] as $name => $transport) {
-            if ($transport['failure_transport']) {
+            if (isset($transport['failure_transport'])) {
                 $failureTransports[] = $transport['failure_transport'];
                 $failureTransportsByName[$name] = $transport['failure_transport'];
             } elseif ($config['failure_transport']) {
@@ -190,6 +190,7 @@ final class T3MessengerPass implements CompilerPassInterface
         $senderAliases = [];
         $transportRetryReferences = [];
         foreach ($config['transports'] as $name => $transport) {
+            // var_dump($transport);exit;
             $serializerId = $transport['serializer'] ?? 'messenger.default_serializer';
             $transportDefinition = (new Definition(TransportInterface::class))
                 ->setFactory([new Reference('messenger.transport_factory'), 'createTransport'])
@@ -234,7 +235,7 @@ final class T3MessengerPass implements CompilerPassInterface
         }
 
         foreach ($config['transports'] as $name => $transport) {
-            if ($transport['failure_transport']) {
+            if (isset($transport['failure_transport'])) {
                 if (! isset($senderReferences[$transport['failure_transport']])) {
                     throw new LogicException(sprintf(
                         'Invalid Messenger configuration: the failure transport "%s" is not a valid transport or service id.',
@@ -295,10 +296,10 @@ final class T3MessengerPass implements CompilerPassInterface
             $container->getDefinition('console.command.messenger_failed_messages_remove')
                 ->replaceArgument(0, $config['failure_transport']);
 
-            $failureTransportsByTransportNameServiceLocator = ServiceLocatorTagPass::register(
-                $container,
-                $failureTransportReferencesByTransportName
-            );
+        //            $failureTransportsByTransportNameServiceLocator = ServiceLocatorTagPass::register(
+        //                $container,
+        //                $failureTransportReferencesByTransportName
+        //            );
         //            $container->getDefinition('messenger.failure.send_failed_message_to_failure_transport_listener')
         //                      ->replaceArgument(0, $failureTransportsByTransportNameServiceLocator);
         } else {
