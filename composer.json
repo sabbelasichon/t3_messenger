@@ -21,6 +21,7 @@
     "typo3/cms-extbase": "^10.4 || ^11.5 || ^12.0",
     "symfony/messenger": "^5.0 || 6.2",
     "symfony/serializer": "^5.0 || ^6.2",
+    "symfony/options-resolver": "^5.0 || ^6.2",
     "symfony/doctrine-messenger": "^5.0 || ^6.2"
   },
   "require-dev": {

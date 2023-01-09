@@ -22,14 +22,13 @@ final class MyMessengerHandler implements MessageSubscriberInterface, LoggerAwar
 
     public function firstMessageMethod(MyCommand $command): void
     {
-        throw new \RuntimeException('A problem occured');
+        echo 'test';
     }
 
     public static function getHandledMessages(): iterable
     {
         yield MyCommand::class => [
             'method' => 'firstMessageMethod',
-            'bus' => 'command.bus',
         ];
     }
 }

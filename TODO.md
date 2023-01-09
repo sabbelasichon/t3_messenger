@@ -1,11 +1,13 @@
-- Abhängigkeit zum Symfony Serializer entfernen
+- Abhängigkeit zum Symfony Serializer entfernen -> https://symfony.com/doc/current/messenger.html#serializing-messages
 - TYPO3 Logger injecten
-- Defaults für die Config direkt erzeugen. Siehe Symfony Framework Bundle für die einzelnen Optionen. Ggf. OptionsResolver nutzen
 - Tests erstellen
-- Verschiedene Transports testen
+
 
 
 Missing Parts
 - messenger:stats command part of 6.2
 - RateLimiter für consume command ggf. konfigurieren
 - How to enforce failed messages
+- Middleware für RoutingContext und Valdation erstellen
+- Verschiedene Transports testen
+- Add different middlewares to different buses

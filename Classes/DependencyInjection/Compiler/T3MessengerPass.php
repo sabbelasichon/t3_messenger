@@ -27,6 +27,7 @@ use Symfony\Component\Messenger\MessageBus;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use TYPO3\CMS\Core\Core\Bootstrap;
 use TYPO3\CMS\Core\Information\Typo3Version;
@@ -45,7 +46,7 @@ final class T3MessengerPass implements CompilerPassInterface
 
         $config = $this->createCommandBusConfigurationFromPackages();
 
-        if ($config->count() === 0) {
+        if (count($config) === 0) {
             return;
         }
 
@@ -190,21 +191,23 @@ final class T3MessengerPass implements CompilerPassInterface
         $senderAliases = [];
         $transportRetryReferences = [];
         foreach ($config['transports'] as $name => $transport) {
-            // var_dump($transport);exit;
             $serializerId = $transport['serializer'] ?? 'messenger.default_serializer';
             $transportDefinition = (new Definition(TransportInterface::class))
                 ->setFactory([new Reference('messenger.transport_factory'), 'createTransport'])
-                ->setArguments([$transport['dsn'], $transport['options'] + [
-                    'transport_name' => $name,
-                ], new Reference($serializerId)])
+                ->setArguments([
+                    $transport['dsn'],
+                    $transport['options'] + [
+                        'transport_name' => $name,
+                    ],
+                    new Reference($serializerId),
+                ])
                 ->addTag(
                     'messenger.receiver',
                     [
                         'alias' => $name,
                         'is_failure_transport' => \in_array($name, $failureTransports, true),
                     ]
-                )
-            ;
+                );
             $container->setDefinition($transportId = 'messenger.transport.' . $name, $transportDefinition);
             $senderAliases[$name] = $transportId;
 
@@ -278,12 +281,10 @@ final class T3MessengerPass implements CompilerPassInterface
 
         $container->getDefinition('messenger.senders_locator')
             ->replaceArgument(0, $messageToSendersMapping)
-            ->replaceArgument(1, $sendersServiceLocator)
-        ;
+            ->replaceArgument(1, $sendersServiceLocator);
 
-        //        $container->getDefinition('messenger.retry.send_failed_message_for_retry_listener')
-        //                  ->replaceArgument(0, $sendersServiceLocator)
-        //        ;
+        $container->getDefinition('messenger.retry.send_failed_message_for_retry_listener')
+            ->replaceArgument(0, $sendersServiceLocator);
 
         $container->getDefinition('messenger.retry_strategy_locator')
             ->replaceArgument(0, $transportRetryReferences);
@@ -296,22 +297,24 @@ final class T3MessengerPass implements CompilerPassInterface
             $container->getDefinition('console.command.messenger_failed_messages_remove')
                 ->replaceArgument(0, $config['failure_transport']);
 
-        //            $failureTransportsByTransportNameServiceLocator = ServiceLocatorTagPass::register(
-        //                $container,
-        //                $failureTransportReferencesByTransportName
-        //            );
-        //            $container->getDefinition('messenger.failure.send_failed_message_to_failure_transport_listener')
-        //                      ->replaceArgument(0, $failureTransportsByTransportNameServiceLocator);
+            $failureTransportsByTransportNameServiceLocator = ServiceLocatorTagPass::register(
+                $container,
+                $failureTransportReferencesByTransportName
+            );
+            $container->getDefinition('messenger.failure.send_failed_message_to_failure_transport_listener')
+                ->replaceArgument(0, $failureTransportsByTransportNameServiceLocator);
         } else {
-            //            $container->removeDefinition('messenger.failure.send_failed_message_to_failure_transport_listener');
+            $container->removeDefinition('messenger.failure.send_failed_message_to_failure_transport_listener');
             $container->removeDefinition('console.command.messenger_failed_messages_retry');
             $container->removeDefinition('console.command.messenger_failed_messages_show');
             $container->removeDefinition('console.command.messenger_failed_messages_remove');
         }
     }
 
-    private function createCommandBusConfigurationFromPackages(): \ArrayObject
+    private function createCommandBusConfigurationFromPackages(): array
     {
+        $resolver = new OptionsResolver();
+
         $versionInformation = GeneralUtility::makeInstance(Typo3Version::class);
         if ($versionInformation->getMajorVersion() >= 11) {
             $coreCache = Bootstrap::createCache('core');
@@ -333,6 +336,51 @@ final class T3MessengerPass implements CompilerPassInterface
             }
         }
 
-        return $config;
+        $resolver->setDefaults([
+            'serializer' => [
+                'default_serializer' => 'messenger.transport.native_php_serializer',
+                'symfony_serializer' => [
+                    'format' => 'json',
+                    'context' => [],
+                ],
+            ],
+            'routing' => [],
+            'default_bus' => null,
+            'buses' => [
+                'messenger.bus.default' => [
+                    'default_middleware' => true,
+                    'middleware' => [],
+                ],
+            ],
+            'failure_transport' => null,
+        ]);
+
+        $resolver->setDefault('transports', function (OptionsResolver $transportResolver) {
+            $transportResolver
+                ->setPrototype(true)
+                ->setRequired(['dsn'])
+                ->setDefaults([
+                    'failure_transport' => null,
+                    'options' => [],
+                    'serializer' => null,
+                ]);
+
+            $transportResolver->setDefault('retry_strategy', function (OptionsResolver $retryStrategyResolver) {
+                $retryStrategyResolver->setDefaults([
+                    'service' => null,
+                    'max_retries' => 3,
+                    'delay' => 1000,
+                    'multiplier' => 2,
+                    'max_delay' => 0,
+                ]);
+
+                $retryStrategyResolver->setAllowedTypes('max_retries', 'integer');
+                $retryStrategyResolver->setAllowedTypes('delay', 'integer');
+                $retryStrategyResolver->setAllowedTypes('multiplier', ['float', 'integer']);
+                $retryStrategyResolver->setAllowedTypes('max_delay', 'integer');
+            });
+        });
+
+        return $resolver->resolve($config->getArrayCopy());
     }
 }
