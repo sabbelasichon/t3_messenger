@@ -31,6 +31,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use TYPO3\CMS\Core\Core\Bootstrap;
 use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Log\Channel;
+use TYPO3\CMS\Core\Log\Logger;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -77,6 +80,8 @@ final class T3MessengerPass implements CompilerPassInterface
             AmazonSqsTransportFactory::class,
             ['symfony/framework-bundle', 'symfony/messenger']
         )) {
+            $this->addLoggerArgument($container, 'messenger.transport.sqs.factory', 0);
+
             $container->getDefinition('messenger.transport.sqs.factory')
                 ->addTag('messenger.transport_factory');
         }
@@ -290,11 +295,24 @@ final class T3MessengerPass implements CompilerPassInterface
             ->replaceArgument(0, $transportRetryReferences);
 
         if (\count($failureTransports) > 0) {
+            $this->addLoggerArgument($container, 'console.command.messenger_failed_messages_retry', 4);
+
             $container->getDefinition('console.command.messenger_failed_messages_retry')
+                ->addTag('console.command', [
+                    'command' => 't3_messenger:failed-messages-retry',
+                ])
                 ->replaceArgument(0, $config['failure_transport']);
+
             $container->getDefinition('console.command.messenger_failed_messages_show')
+                ->addTag('console.command', [
+                    'command' => 't3_messenger:failed-messages-show',
+                ])
                 ->replaceArgument(0, $config['failure_transport']);
+
             $container->getDefinition('console.command.messenger_failed_messages_remove')
+                ->addTag('console.command', [
+                    'command' => 't3_messenger:failed-messages-remove',
+                ])
                 ->replaceArgument(0, $config['failure_transport']);
 
             $failureTransportsByTransportNameServiceLocator = ServiceLocatorTagPass::register(
@@ -309,6 +327,8 @@ final class T3MessengerPass implements CompilerPassInterface
             $container->removeDefinition('console.command.messenger_failed_messages_show');
             $container->removeDefinition('console.command.messenger_failed_messages_remove');
         }
+
+        $this->addLoggerArgument($container, 'console.command.messenger_consume_messages', 3);
     }
 
     private function createCommandBusConfigurationFromPackages(): array
@@ -382,5 +402,43 @@ final class T3MessengerPass implements CompilerPassInterface
         });
 
         return $resolver->resolve($config->getArrayCopy());
+    }
+
+    private function getClassChannelName(\ReflectionClass $class): ?string
+    {
+        // Attribute channel definition is only supported on PHP 8 and later.
+        if (class_exists('\ReflectionAttribute', false)) {
+            $attributes = $class->getAttributes(Channel::class, \ReflectionAttribute::IS_INSTANCEOF);
+            foreach ($attributes as $channel) {
+                return $channel->newInstance()
+->name;
+            }
+        }
+
+        if ($class->getParentClass() !== false) {
+            return $this->getClassChannelName($class->getParentClass());
+        }
+
+        return null;
+    }
+
+    private function addLoggerArgument(ContainerBuilder $container, string $id, int $int)
+    {
+        $definition = $container->findDefinition($id);
+
+        $channel = $id;
+        if ($definition->getClass()) {
+            $reflectionClass = $container->getReflectionClass($definition->getClass(), false);
+            if ($reflectionClass) {
+                $channel = $this->getClassChannelName($reflectionClass) ?? $channel;
+            }
+        }
+
+        $logger = new Definition(Logger::class);
+        $logger->setFactory([new Reference(LogManager::class), 'getLogger']);
+        $logger->setArguments([$channel]);
+        $logger->setShared(false);
+
+        $definition->replaceArgument($int, $logger);
     }
 }

@@ -9,15 +9,12 @@ declare(strict_types=1);
  * LICENSE.txt file that was distributed with this source code.
  */
 
-use Psr\Log\LoggerInterface;
 use Ssch\T3Messenger\Console\MyDummyConsoleCommand;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\Messenger\Bridge\AmazonSqs\Transport\AmazonSqsTransportFactory;
-use Symfony\Component\Messenger\Bridge\Beanstalkd\Transport\BeanstalkdTransportFactory;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\abstract_arg;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -26,7 +23,9 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\Bridge\AmazonSqs\Transport\AmazonSqsTransportFactory;
 use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpTransportFactory;
+use Symfony\Component\Messenger\Bridge\Beanstalkd\Transport\BeanstalkdTransportFactory;
 use Symfony\Component\Messenger\Bridge\Redis\Transport\RedisTransportFactory;
 use Symfony\Component\Messenger\Command\ConsumeMessagesCommand;
 use Symfony\Component\Messenger\Command\DebugCommand;
@@ -73,10 +72,6 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $services->set('event_dispatcher', EventDispatcher::class);
 
     $services
-        // Logger
-//        ->set('messenger.logger', LoggerInterface::class)
-//        ->factory([service(LogManager::class), 'getLogger'])
-//        ->share(false)
         ->alias('messenger.default_serializer', 'messenger.transport.native_php_serializer')
         ->alias(SerializerInterface::class, 'messenger.default_serializer')
 
@@ -118,11 +113,8 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->tag('messenger.transport_factory')
         ->set('messenger.transport.in_memory.factory', InMemoryTransportFactory::class)
         ->tag('messenger.transport_factory')
-        ->tag('kernel.reset', [
-            'method' => 'reset',
-        ])
         ->set('messenger.transport.sqs.factory', AmazonSqsTransportFactory::class)
-        ->args([service('messenger.logger')->ignoreOnInvalid()])
+        ->args([abstract_arg('messenger logger')])
         ->set('messenger.transport.beanstalkd.factory', BeanstalkdTransportFactory::class)
         // retry
         ->set('messenger.retry_strategy_locator', ServiceLocator::class)
@@ -152,8 +144,8 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
 
         ->set('messenger.listener.dispatch_pcntl_signal_listener', DispatchPcntlSignalListener::class)
 
-        ->set('messenger.listener.stop_worker_on_restart_signal_listener', StopWorkerOnRestartSignalListener::class)
-        ->args([service('cache.messenger.restart_workers_signal')])
+//        ->set('messenger.listener.stop_worker_on_restart_signal_listener', StopWorkerOnRestartSignalListener::class)
+//        ->args([service('cache.messenger.restart_workers_signal')])
 
         ->set('messenger.listener.stop_worker_on_sigterm_signal_listener', StopWorkerOnSigtermSignalListener::class)
 
@@ -175,12 +167,14 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             abstract_arg('Receivers'),
             service('messenger.routable_message_bus'),
             service('event_dispatcher'),
-            service('messenger.logger')
-                ->ignoreOnInvalid(),
-        ])
-        ->tag('console.command', [
-            'command' => 't3_messenger:failed-messages-retry',
+            abstract_arg('messenger logger'),
         ]);
+
+    $services->set('console.command.messenger_failed_messages_show', FailedMessagesShowCommand::class)
+        ->args([abstract_arg('Default failure receiver name'), abstract_arg('Receivers')]);
+
+    $services->set('console.command.messenger_failed_messages_remove', FailedMessagesRemoveCommand::class)
+        ->args([abstract_arg('Default failure receiver name'), abstract_arg('Receivers')]);
 
     //    $services->set('console.command.messenger_stop_workers', StopWorkersCommand::class)
     //        ->args([
@@ -193,8 +187,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             abstract_arg('Routable message bus'),
             service('messenger.receiver_locator'),
             service('event_dispatcher'),
-            service('logger')
-                ->nullOnInvalid(),
+            abstract_arg('messenger logger'),
             [], // Receiver names
         ])
         ->tag('console.command', [
@@ -205,18 +198,6 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->args([service('messenger.receiver_locator'), []])
         ->tag('console.command', [
             'command' => 't3_messenger:setup-transports',
-        ]);
-
-    $services->set('console.command.messenger_failed_messages_show', FailedMessagesShowCommand::class)
-        ->args([abstract_arg('Default failure receiver name'), abstract_arg('Receivers')])
-        ->tag('console.command', [
-            'command' => 't3_messenger:failed-messages-show',
-        ]);
-
-    $services->set('console.command.messenger_failed_messages_remove', FailedMessagesRemoveCommand::class)
-        ->args([abstract_arg('Default failure receiver name'), abstract_arg('Receivers')])
-        ->tag('console.command', [
-            'command' => 't3_messenger:failed-messages-remove',
         ]);
 
     $services->set(MyDummyConsoleCommand::class)

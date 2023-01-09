@@ -1,15 +1,22 @@
 - Abhängigkeit zum Symfony Serializer entfernen -> https://symfony.com/doc/current/messenger.html#serializing-messages
-- TYPO3 Logger injecten
 - Tests erstellen
 
 
 
 Missing Parts
-- messenger:stats command part of 6.2
-- RateLimiter für consume command ggf. konfigurieren RateLimiter Komponente
 - How to enforce failed messages?
 - Middleware für RoutingContext und Valdation erstellen
 - Verschiedene Transports testen
 - Add different middlewares to different buses
-- Monitoring UI in the Backend
 - Stop Workers command
+- Documentation
+
+Nice to have before releasing
+- messenger:stats command part of 6.2
+- RateLimiter für consume command ggf. konfigurieren RateLimiter Komponente
+- Monitoring UI in the Backend
+
+Messenger
+Basketball
+Symfony Dependeny Injection
+19813439
