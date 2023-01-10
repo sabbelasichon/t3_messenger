@@ -24,6 +24,31 @@ final class MessengerConfigurationResolverTest extends TestCase
         $this->subject = new MessengerConfigurationResolver();
     }
 
+    public function testThatAnExceptionIsThrownIfTheTransportsRetryStrategyConfigurationIsInvalid(): void
+    {
+        // Assert
+        $this->expectException(InvalidOptionsException::class);
+
+        // Arrange
+        $configuration = [
+            'transports' => [
+                'async' => [
+                    'dsn' => 'foo://',
+                    'retry_strategy' => [
+                        'service' => 'foo',
+                        'max_retries' => 1,
+                        'delay' => 1,
+                        'multiplier' => 1,
+                        'max_delay' => 1,
+                    ],
+                ],
+            ],
+        ];
+
+        // Act
+        $this->subject->resolve($configuration);
+    }
+
     public function testThatAnExceptionIsThrownIfNoDefaultBusIsDefinedForMultipleBuses(): void
     {
         // Assert

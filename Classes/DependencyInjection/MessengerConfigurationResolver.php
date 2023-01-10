@@ -24,6 +24,7 @@ final class MessengerConfigurationResolver
         $resolvedConfiguration = $resolver->resolve($configuration);
 
         $this->validateBusConfiguration($resolvedConfiguration);
+        $this->validateTransportsConfiguration($resolvedConfiguration);
 
         return $resolvedConfiguration;
     }
@@ -79,24 +80,48 @@ final class MessengerConfigurationResolver
                 ->setPrototype(true)
                 ->setRequired(['dsn'])
                 ->setDefaults([
-                    'failure_transport' => null,
                     'options' => [],
-                    'serializer' => null,
                 ]);
+
+            $transportResolver
+                ->define('serializer')
+                ->default(null)
+                ->info('Service id of a custom serializer to use.');
+
+            $transportResolver
+                ->define('failure_transport')
+                ->default(null)
+                ->info('Transport name to send failed messages to (after all retries have failed).');
 
             $transportResolver->setDefault('retry_strategy', function (OptionsResolver $retryStrategyResolver) {
                 $retryStrategyResolver->setDefaults([
                     'service' => null,
                     'max_retries' => 3,
-                    'delay' => 1000,
-                    'multiplier' => 2,
-                    'max_delay' => 0,
                 ]);
 
+                $retryStrategyResolver
+                    ->define('delay')
+                    ->default(1000)
+                    ->allowedTypes('integer')
+                    ->info('Time in ms to delay (or the initial value when multiplier is used)');
+
+                $retryStrategyResolver
+                    ->define('multiplier')
+                    ->default(2)
+                    ->allowedTypes('float', 'integer')
+                    // TODO: Minimum 1 validation
+                    ->info(
+                        'If greater than 1, delay will grow exponentially for each retry: this delay = (delay * (multiple ^ retries))'
+                    );
+
+                $retryStrategyResolver
+                    ->define('max_delay')
+                    ->default(0)
+                    ->allowedTypes('integer')
+                    // TODO: Minimum 0 validation
+                    ->info('Max time in ms that a retry should ever be delayed (0 = infinite)');
+
                 $retryStrategyResolver->setAllowedTypes('max_retries', 'integer');
-                $retryStrategyResolver->setAllowedTypes('delay', 'integer');
-                $retryStrategyResolver->setAllowedTypes('multiplier', ['float', 'integer']);
-                $retryStrategyResolver->setAllowedTypes('max_delay', 'integer');
             });
         });
     }
@@ -115,6 +140,21 @@ final class MessengerConfigurationResolver
                 $resolvedConfiguration['default_bus'],
                 implode('", "', array_keys($resolvedConfiguration['buses']))
             ));
+        }
+    }
+
+    private function validateTransportsConfiguration(array $resolvedConfiguration): void
+    {
+        foreach ($resolvedConfiguration['transports'] as $transport) {
+            if (! isset($transport['retry_strategy'])) {
+                continue;
+            }
+
+            if (isset($transport['retry_strategy']['service']) && (isset($transport['retry_strategy']['max_retries']) || isset($transport['retry_strategy']['delay']) || isset($transport['retry_strategy']['multiplier']) || isset($transport['retry_strategy']['max_delay']))) {
+                throw new InvalidOptionsException(
+                    'The "service" cannot be used along with the other "retry_strategy" options.'
+                );
+            }
         }
     }
 }
