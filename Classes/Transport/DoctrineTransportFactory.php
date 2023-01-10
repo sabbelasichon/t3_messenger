@@ -17,12 +17,20 @@ use Symfony\Component\Messenger\Bridge\Doctrine\Transport\DoctrineTransport;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
+use TYPO3\CMS\Core\Core\Environment;
 
 final class DoctrineTransportFactory implements TransportFactoryInterface
 {
     public function createTransport(string $dsn, array $options, SerializerInterface $serializer): TransportInterface
     {
-        $connection = DriverManager::getConnection($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']);
+        $databaseConfiguration = $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default'];
+
+        // I got always an exception in the testing context: PDOException: SQLSTATE[HY093]: Invalid parameter number: parameter was not defined
+        if (Environment::getContext()->isTesting()) {
+            unset($databaseConfiguration['wrapperClass']);
+        }
+
+        $connection = DriverManager::getConnection($databaseConfiguration);
         $doctrineTransportConnection = new Connection($options, $connection);
 
         return new DoctrineTransport($doctrineTransportConnection, $serializer);

@@ -9,11 +9,11 @@ declare(strict_types=1);
  * LICENSE.txt file that was distributed with this source code.
  */
 
-namespace Ssch\T3MessengerTests\Handlers;
+namespace Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Handlers;
 
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use Ssch\T3MessengerTest\Command\MyCommand;
+use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyCommand;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 final class MyMessengerHandler implements MessageSubscriberInterface, LoggerAwareInterface

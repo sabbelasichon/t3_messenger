@@ -252,7 +252,7 @@ final class T3MessengerPass implements CompilerPassInterface
             $senderReferences[$serviceId] = new Reference($serviceId);
         }
 
-        foreach ($config['transports'] as $name => $transport) {
+        foreach ($config['transports'] as $transport) {
             if (isset($transport['failure_transport'])) {
                 if (! isset($senderReferences[$transport['failure_transport']])) {
                     throw new LogicException(sprintf(
