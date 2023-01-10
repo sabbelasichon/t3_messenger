@@ -6,6 +6,7 @@ parameters:
   treatPhpDocTypesAsCertain: false
   checkMissingIterableValueType: false
   checkGenericClassInNonGenericObjectType: false
+  reportUnmatchedIgnoredErrors: false
   paths:
     - Classes
     - Tests
