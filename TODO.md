@@ -5,6 +5,5 @@ Missing Parts
 - Remove dummy classes like Handler and Command
 
 Nice to have before releasing
-- Readme.md
 - Monitoring UI in the Backend
 - Middleware für RoutingContext erstellen
