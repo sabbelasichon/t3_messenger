@@ -2,8 +2,8 @@
 
 Missing Parts
 - How to enforce failed messages?
-- Stop Workers command
 - Remove dummy classes like Handler and Command
+- Harden the validation of the Messenger configuration
 
 Nice to have before releasing
 - Documentation

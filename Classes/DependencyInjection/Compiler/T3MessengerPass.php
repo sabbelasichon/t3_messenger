@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\DependencyInjection\Compiler;
 
+use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
@@ -27,7 +28,6 @@ use Symfony\Component\Messenger\MessageBus;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use TYPO3\CMS\Core\Core\Bootstrap;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Log\Channel;
@@ -38,6 +38,13 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final class T3MessengerPass implements CompilerPassInterface
 {
+    private MessengerConfigurationResolver $messengerConfigurationResolver;
+
+    public function __construct(MessengerConfigurationResolver $messengerConfigurationResolver)
+    {
+        $this->messengerConfigurationResolver = $messengerConfigurationResolver;
+    }
+
     public function process(ContainerBuilder $container)
     {
         if (! interface_exists(MessageBusInterface::class)) {
@@ -328,8 +335,6 @@ final class T3MessengerPass implements CompilerPassInterface
 
     private function createCommandBusConfigurationFromPackages(): array
     {
-        $resolver = new OptionsResolver();
-
         $versionInformation = GeneralUtility::makeInstance(Typo3Version::class);
         if ($versionInformation->getMajorVersion() >= 11) {
             $coreCache = Bootstrap::createCache('core');
@@ -351,52 +356,7 @@ final class T3MessengerPass implements CompilerPassInterface
             }
         }
 
-        $resolver->setDefaults([
-            'serializer' => [
-                'default_serializer' => 'messenger.transport.native_php_serializer',
-                'symfony_serializer' => [
-                    'format' => 'json',
-                    'context' => [],
-                ],
-            ],
-            'routing' => [],
-            'default_bus' => null,
-            'buses' => [
-                'messenger.bus.default' => [
-                    'default_middleware' => true,
-                    'middleware' => [],
-                ],
-            ],
-            'failure_transport' => null,
-        ]);
-
-        $resolver->setDefault('transports', function (OptionsResolver $transportResolver) {
-            $transportResolver
-                ->setPrototype(true)
-                ->setRequired(['dsn'])
-                ->setDefaults([
-                    'failure_transport' => null,
-                    'options' => [],
-                    'serializer' => null,
-                ]);
-
-            $transportResolver->setDefault('retry_strategy', function (OptionsResolver $retryStrategyResolver) {
-                $retryStrategyResolver->setDefaults([
-                    'service' => null,
-                    'max_retries' => 3,
-                    'delay' => 1000,
-                    'multiplier' => 2,
-                    'max_delay' => 0,
-                ]);
-
-                $retryStrategyResolver->setAllowedTypes('max_retries', 'integer');
-                $retryStrategyResolver->setAllowedTypes('delay', 'integer');
-                $retryStrategyResolver->setAllowedTypes('multiplier', ['float', 'integer']);
-                $retryStrategyResolver->setAllowedTypes('max_delay', 'integer');
-            });
-        });
-
-        return $resolver->resolve($config->getArrayCopy());
+        return $this->messengerConfigurationResolver->resolve($config->getArrayCopy());
     }
 
     private function getClassChannelName(\ReflectionClass $class): ?string
