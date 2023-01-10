@@ -24,7 +24,7 @@ final class Psr6CacheAdapter implements CacheItemPoolInterface
         $this->cache = $cache;
     }
 
-    public function getItem(string $key): CacheItemInterface
+    public function getItem($key): CacheItemInterface
     {
         $data = $this->cache->get($this->hash($key));
 
@@ -41,7 +41,7 @@ final class Psr6CacheAdapter implements CacheItemPoolInterface
         return $cacheItems;
     }
 
-    public function hasItem(string $key): bool
+    public function hasItem($key): bool
     {
         return $this->cache->has($this->hash($key));
     }
@@ -53,7 +53,7 @@ final class Psr6CacheAdapter implements CacheItemPoolInterface
         return true;
     }
 
-    public function deleteItem(string $key): bool
+    public function deleteItem($key): bool
     {
         return $this->cache->remove($this->hash($key));
     }
