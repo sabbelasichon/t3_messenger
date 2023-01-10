@@ -1,0 +1,16 @@
+{
+  "name": "ssch/t3-messenger-test",
+  "type": "typo3-cms-extension",
+  "description": "Test extensions for t3_messenger",
+  "license": "GPL-2.0+",
+  "require": {
+    "ssch/t3-messenger": "*"
+  },
+  "autoload": {
+    "Ssch\\T3MessengerTest\\": "Classes"
+  },
+  "replace": {
+    "t3_messenger_test": "self.version",
+    "typo3-ter/t3-messenger-test": "self.version"
+  }
+}

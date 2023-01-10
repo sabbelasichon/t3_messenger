@@ -1,7 +1,5 @@
 - Tests erstellen
-- Remove dummy classes like Handler and Command
 - Use other cache than extbase for Psr6 Adapter
-- Make commands not possible for the scheduler
 
 Nice to have before releasing
 - Add section about extbase entities: https://symfony.com/doc/current/messenger.html#doctrine-entities-in-messages

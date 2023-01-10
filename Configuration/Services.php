@@ -10,7 +10,6 @@ declare(strict_types=1);
  */
 
 use Ssch\T3Messenger\Cache\Psr6CacheAdapter;
-use Ssch\T3Messenger\Console\MyDummyConsoleCommand;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
 use Ssch\T3Messenger\Middleware\ValidationMiddleware;
@@ -270,12 +269,6 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->args([service('messenger.receiver_locator'), []])
         ->tag('console.command', [
             'command' => 't3_messenger:setup-transports',
-            'schedulable' => false,
-        ]);
-
-    $services->set(MyDummyConsoleCommand::class)
-        ->tag('console.command', [
-            'command' => 't3_messenger:dummy-dispatch',
             'schedulable' => false,
         ]);
 
