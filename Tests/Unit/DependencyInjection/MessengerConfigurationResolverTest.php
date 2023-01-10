@@ -24,26 +24,89 @@ final class MessengerConfigurationResolverTest extends TestCase
         $this->subject = new MessengerConfigurationResolver();
     }
 
-    public function testThatAnExceptionIsThrownIfTheTransportsRetryStrategyConfigurationIsInvalid(): void
+    /**
+     * @return \Generator<string, array>
+     */
+    public function provideInvalidRetryStrategyConfigurations(): \Generator
     {
-        // Assert
-        $this->expectException(InvalidOptionsException::class);
-
-        // Arrange
-        $configuration = [
-            'transports' => [
-                'async' => [
-                    'dsn' => 'foo://',
-                    'retry_strategy' => [
-                        'service' => 'foo',
-                        'max_retries' => 1,
-                        'delay' => 1,
-                        'multiplier' => 1,
-                        'max_delay' => 1,
+        yield 'Service option is defined along with other options' => [
+            [
+                'transports' => [
+                    'async' => [
+                        'dsn' => 'foo://',
+                        'retry_strategy' => [
+                            'service' => 'foo',
+                            'max_retries' => 1,
+                            'delay' => 1,
+                            'multiplier' => 1,
+                            'max_delay' => 1,
+                        ],
                     ],
                 ],
             ],
         ];
+
+        yield 'Max retries option is invalid' => [
+            [
+                'transports' => [
+                    'async' => [
+                        'dsn' => 'foo://',
+                        'retry_strategy' => [
+                            'max_retries' => -1,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'Delay option is invalid' => [
+            [
+                'transports' => [
+                    'async' => [
+                        'dsn' => 'foo://',
+                        'retry_strategy' => [
+                            'delay' => -1,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'Multiplier option is invalid' => [
+            [
+                'transports' => [
+                    'async' => [
+                        'dsn' => 'foo://',
+                        'retry_strategy' => [
+                            'multiplier' => 0,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'Max delay option is invalid' => [
+            [
+                'transports' => [
+                    'async' => [
+                        'dsn' => 'foo://',
+                        'retry_strategy' => [
+                            'max_delay' => -1,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provideInvalidRetryStrategyConfigurations
+     */
+    public function testThatAnExceptionIsThrownIfTheTransportsRetryStrategyConfigurationIsInvalid(
+        array $configuration
+    ): void {
+        // Assert
+        $this->expectException(InvalidOptionsException::class);
 
         // Act
         $this->subject->resolve($configuration);

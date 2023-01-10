@@ -57,7 +57,8 @@ final class MessengerConfigurationResolver
             );
         });
 
-        $resolver->define('failure_transport')
+        $resolver
+            ->define('failure_transport')
             ->default(null)
             ->info('Transport name to send failed messages to (after all retries have failed).');
 
@@ -89,6 +90,11 @@ final class MessengerConfigurationResolver
                 ->info('Service id of a custom serializer to use.');
 
             $transportResolver
+                ->define('rate_limiter')
+                ->default(null)
+                ->info('Rate limiter name to use when processing messages');
+
+            $transportResolver
                 ->define('failure_transport')
                 ->default(null)
                 ->info('Transport name to send failed messages to (after all retries have failed).');
@@ -96,20 +102,32 @@ final class MessengerConfigurationResolver
             $transportResolver->setDefault('retry_strategy', function (OptionsResolver $retryStrategyResolver) {
                 $retryStrategyResolver->setDefaults([
                     'service' => null,
-                    'max_retries' => 3,
                 ]);
+
+                $retryStrategyResolver
+                    ->define('max_retries')
+                    ->default(3)
+                    ->allowedValues(function ($value) {
+                        return is_int($value) && $value >= 0;
+                    })
+                    ->allowedTypes('integer');
 
                 $retryStrategyResolver
                     ->define('delay')
                     ->default(1000)
                     ->allowedTypes('integer')
+                    ->allowedValues(function ($value) {
+                        return is_int($value) && $value >= 0;
+                    })
                     ->info('Time in ms to delay (or the initial value when multiplier is used)');
 
                 $retryStrategyResolver
                     ->define('multiplier')
                     ->default(2)
                     ->allowedTypes('float', 'integer')
-                    // TODO: Minimum 1 validation
+                    ->allowedValues(function ($value) {
+                        return is_int($value) && $value > 0;
+                    })
                     ->info(
                         'If greater than 1, delay will grow exponentially for each retry: this delay = (delay * (multiple ^ retries))'
                     );
@@ -118,10 +136,10 @@ final class MessengerConfigurationResolver
                     ->define('max_delay')
                     ->default(0)
                     ->allowedTypes('integer')
-                    // TODO: Minimum 0 validation
+                    ->allowedValues(function ($value) {
+                        return is_int($value) && $value >= 0;
+                    })
                     ->info('Max time in ms that a retry should ever be delayed (0 = infinite)');
-
-                $retryStrategyResolver->setAllowedTypes('max_retries', 'integer');
             });
         });
     }
