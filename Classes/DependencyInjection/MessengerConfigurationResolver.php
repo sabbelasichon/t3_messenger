@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Ssch\T3Messenger\DependencyInjection;
 
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class MessengerConfigurationResolver
@@ -71,10 +72,90 @@ final class MessengerConfigurationResolver
             ->define('buses')
             ->default([
                 'messenger.bus.default' => [
-                    'default_middleware' => true,
+                    'default_middleware' => [
+                        'enabled' => true,
+                        'allow_no_handlers' => false,
+                        'allow_no_senders' => true,
+                    ],
                     'middleware' => [],
                 ],
-            ]);
+            ])
+            ->normalize(function (Options $options, $value) {
+                foreach ($value as &$busConfiguration) {
+                    if (! isset($busConfiguration['default_middleware'])) {
+                        $busConfiguration['default_middleware'] = [
+                            'enabled' => true,
+                            'allow_no_handlers' => false,
+                            'allow_no_senders' => true,
+                        ];
+                        continue;
+                    }
+
+                    if (! is_string($busConfiguration['default_middleware']) && ! is_bool(
+                        $busConfiguration['default_middleware']
+                    )) {
+                        continue;
+                    }
+
+                    if (\is_string(
+                        $busConfiguration['default_middleware']
+                    ) && $busConfiguration['default_middleware'] === 'allow_no_handlers') {
+                        $busConfiguration['default_middleware'] = [
+                            'enabled' => true,
+                            'allow_no_handlers' => true,
+                            'allow_no_senders' => true,
+                        ];
+
+                        continue;
+                    }
+
+                    $busConfiguration['default_middleware'] = [
+                        'enabled' => $busConfiguration['default_middleware'],
+                        'allow_no_handlers' => false,
+                        'allow_no_senders' => true,
+                    ];
+                }
+
+                foreach ($value as &$busConfiguration) {
+                    if (! isset($busConfiguration['middleware'])) {
+                        $busConfiguration['middleware'] = [];
+                        continue;
+                    }
+
+                    if (\is_string($busConfiguration['middleware'])) {
+                        $busConfiguration['middleware'] = [$busConfiguration['middleware']];
+                        continue;
+                    }
+
+                    foreach ($busConfiguration['middleware'] as $key => $middleware) {
+                        if (! \is_array($middleware)) {
+                            $busConfiguration['middleware'][$key] = [
+                                'id' => $middleware,
+                            ];
+                            continue;
+                        }
+
+                        if (isset($middleware['id'])) {
+                            continue;
+                        }
+
+                        if (\count($middleware) > 1) {
+                            throw new \InvalidArgumentException(
+                                'Invalid middleware: a map with a single factory id as key and its arguments as value was expected, ' . json_encode(
+                                    $middleware
+                                ) . ' given.'
+                            );
+                        }
+
+                        $busConfiguration['middleware'][$key] = [
+                            'id' => key($middleware),
+                            'arguments' => current($middleware),
+                        ];
+                    }
+                }
+
+                return $value;
+            });
 
         $resolver->setDefault('transports', function (OptionsResolver $transportResolver) {
             $transportResolver
