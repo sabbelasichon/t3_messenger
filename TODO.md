@@ -6,6 +6,5 @@ Missing Parts
 
 Nice to have before releasing
 - Readme.md
-- RateLimiter für consume command ggf. konfigurieren RateLimiter Komponente
 - Monitoring UI in the Backend
 - Middleware für RoutingContext erstellen

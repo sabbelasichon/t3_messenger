@@ -144,6 +144,12 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             abstract_arg('multiplier'),
             abstract_arg('max delay ms'),
         ])
+
+        // rate limiter
+        ->set('messenger.rate_limiter_locator', ServiceLocator::class)
+        ->args([[]])
+        ->tag('container.service_locator')
+
         // worker event listener
         ->set('messenger.retry.send_failed_message_for_retry_listener', SendFailedMessageForRetryListener::class)
         ->args([
@@ -209,6 +215,11 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             service('event_dispatcher'),
             abstract_arg('messenger logger'),
             [], // Receiver names
+            service('messenger.listener.reset_services')
+                ->nullOnInvalid(),
+            [], // Bus names
+            service('messenger.rate_limiter_locator')
+                ->nullOnInvalid(),
         ])
         ->tag('console.command', [
             'command' => 't3_messenger:consume-messages',

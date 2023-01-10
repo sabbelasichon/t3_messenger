@@ -28,6 +28,7 @@ use Symfony\Component\Messenger\MessageBus;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
+use Symfony\Component\RateLimiter\LimiterInterface;
 use TYPO3\CMS\Core\Core\Bootstrap;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Log\Channel;
@@ -193,6 +194,7 @@ final class T3MessengerPass implements CompilerPassInterface
 
         $senderAliases = [];
         $transportRetryReferences = [];
+        $transportRateLimiterReferences = [];
         foreach ($config['transports'] as $name => $transport) {
             $serializerId = $transport['serializer'] ?? 'messenger.default_serializer';
             $transportDefinition = (new Definition(TransportInterface::class))
@@ -227,6 +229,16 @@ final class T3MessengerPass implements CompilerPassInterface
                 $container->setDefinition($retryServiceId, $retryDefinition);
 
                 $transportRetryReferences[$name] = new Reference($retryServiceId);
+            }
+
+            if ($transport['rate_limiter']) {
+                if (! interface_exists(LimiterInterface::class)) {
+                    throw new LogicException(
+                        'Rate limiter cannot be used within Messenger as the RateLimiter component is not installed. Try running "composer require symfony/rate-limiter".'
+                    );
+                }
+
+                $transportRateLimiterReferences[$name] = new Reference('limiter.' . $transport['rate_limiter']);
             }
         }
 
@@ -291,6 +303,13 @@ final class T3MessengerPass implements CompilerPassInterface
 
         $container->getDefinition('messenger.retry_strategy_locator')
             ->replaceArgument(0, $transportRetryReferences);
+
+        if (! $transportRateLimiterReferences) {
+            $container->removeDefinition('messenger.rate_limiter_locator');
+        } else {
+            $container->getDefinition('messenger.rate_limiter_locator')
+                ->replaceArgument(0, $transportRateLimiterReferences);
+        }
 
         if (\count($failureTransports) > 0) {
             $this->addLoggerArgument($container, 'console.command.messenger_failed_messages_retry', 4);
