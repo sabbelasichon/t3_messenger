@@ -1,5 +1,4 @@
 - Tests erstellen
-- How to enforce failed messages?
 - Remove dummy classes like Handler and Command
 - Use other cache than extbase for Psr6 Adapter
 

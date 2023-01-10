@@ -68,6 +68,7 @@ use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
+use TYPO3\CMS\Core\DependencyInjection\ConsoleCommandPass;
 
 return static function (ContainerConfigurator $containerConfigurator, ContainerBuilder $containerBuilder): void {
     $services = $containerConfigurator->services();
@@ -101,16 +102,13 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         // Message encoding/decoding
         ->set('messenger.transport.symfony_serializer', Serializer::class)
         ->args([service('serializer'), abstract_arg('format'), abstract_arg('context')])
-
         ->set('messenger.transport.native_php_serializer', PhpSerializer::class)
         // Middleware
         ->set('messenger.middleware.handle_message', HandleMessageMiddleware::class)
         ->abstract()
         ->args([abstract_arg('bus handler resolver')])
-
         ->set('messenger.middleware.add_bus_name_stamp_middleware', AddBusNameStampMiddleware::class)
         ->abstract()
-
         ->set('messenger.middleware.dispatch_after_current_bus', DispatchAfterCurrentBusMiddleware::class)
         ->set('messenger.middleware.reject_redelivered_message_middleware', RejectRedeliveredMessageMiddleware::class)
         ->set('messenger.middleware.failed_message_processing_middleware', FailedMessageProcessingMiddleware::class)
@@ -161,30 +159,24 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             service('event_dispatcher'),
         ])
         ->tag('kernel.event_subscriber')
-
         ->set('messenger.failure.add_error_details_stamp_listener', AddErrorDetailsStampListener::class)
         ->tag('kernel.event_subscriber')
-
         ->set(
             'messenger.failure.send_failed_message_to_failure_transport_listener',
             SendFailedMessageToFailureTransportListener::class
         )
         ->args([abstract_arg('failure transports')])
         ->tag('kernel.event_subscriber')
-
         ->set('messenger.listener.dispatch_pcntl_signal_listener', DispatchPcntlSignalListener::class)
         ->tag('kernel.event_subscriber')
-
         ->set('messenger.listener.stop_worker_on_restart_signal_listener', StopWorkerOnRestartSignalListener::class)
         ->args([service('cache.messenger.restart_workers_signal')])
         ->tag('kernel.event_subscriber')
-
         ->set(
             'messenger.listener.stop_worker_on_stop_exception_listener',
             StopWorkerOnCustomStopExceptionListener::class
         )
         ->tag('kernel.event_subscriber')
-
         ->set('messenger.listener.stop_worker_on_sigterm_signal_listener', StopWorkerOnSigtermSignalListener::class)
         ->args([abstract_arg('messenger logger')])
         ->tag('kernel.event_subscriber')
@@ -224,10 +216,20 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ]);
 
     $services->set('console.command.messenger_failed_messages_show', FailedMessagesShowCommand::class)
-        ->args([abstract_arg('Default failure receiver name'), abstract_arg('Receivers')]);
+        ->args([
+            abstract_arg('Default failure receiver name'),
+            abstract_arg('Receivers'),
+            service('messenger.transport.native_php_serializer')
+                ->nullOnInvalid(),
+        ]);
 
     $services->set('console.command.messenger_failed_messages_remove', FailedMessagesRemoveCommand::class)
-        ->args([abstract_arg('Default failure receiver name'), abstract_arg('Receivers')]);
+        ->args([
+            abstract_arg('Default failure receiver name'),
+            abstract_arg('Receivers'),
+            service('messenger.transport.native_php_serializer')
+                ->nullOnInvalid(),
+        ]);
 
     $services->set('console.command.messenger_stop_workers', StopWorkersCommand::class)
         ->args([service('cache.messenger.restart_workers_signal')])
@@ -296,7 +298,10 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ]);
     }
 
+    // must be registered before removing private services as some might be listeners/subscribers
+    // but as late as possible to get resolved parameters
     $containerBuilder->addCompilerPass($registerListenersPass, PassConfig::TYPE_BEFORE_REMOVING);
     $containerBuilder->addCompilerPass(new T3MessengerPass(new MessengerConfigurationResolver()));
     $containerBuilder->addCompilerPass(new MessengerPass());
+    $containerBuilder->addCompilerPass(new ConsoleCommandPass('console.command'));
 };
