@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Service;
 
-use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyCommand;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class MyService
@@ -23,8 +22,8 @@ final class MyService
         $this->messageBus = $messageBus;
     }
 
-    public function dispatch(): void
+    public function dispatch($command): void
     {
-        $this->messageBus->dispatch(new MyCommand('max.mustermann@domain.com'));
+        $this->messageBus->dispatch($command);
     }
 }
