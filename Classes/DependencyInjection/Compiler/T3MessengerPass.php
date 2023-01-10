@@ -46,7 +46,7 @@ final class T3MessengerPass implements CompilerPassInterface
         $this->messengerConfigurationResolver = $messengerConfigurationResolver;
     }
 
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         if (! interface_exists(MessageBusInterface::class)) {
             throw new LogicException(
@@ -60,40 +60,24 @@ final class T3MessengerPass implements CompilerPassInterface
             return;
         }
 
-        if (ContainerBuilder::willBeAvailable(
-            'symfony/amqp-messenger',
-            AmqpTransportFactory::class,
-            ['symfony/framework-bundle', 'symfony/messenger']
-        )) {
+        if (class_exists(AmqpTransportFactory::class)) {
             $container->getDefinition('messenger.transport.amqp.factory')
                 ->addTag('messenger.transport_factory');
         }
 
-        if (ContainerBuilder::willBeAvailable(
-            'symfony/redis-messenger',
-            RedisTransportFactory::class,
-            ['symfony/framework-bundle', 'symfony/messenger']
-        )) {
+        if (class_exists(RedisTransportFactory::class)) {
             $container->getDefinition('messenger.transport.redis.factory')
                 ->addTag('messenger.transport_factory');
         }
 
-        if (ContainerBuilder::willBeAvailable(
-            'symfony/amazon-sqs-messenger',
-            AmazonSqsTransportFactory::class,
-            ['symfony/framework-bundle', 'symfony/messenger']
-        )) {
+        if (class_exists(AmazonSqsTransportFactory::class)) {
             $this->addLoggerArgument($container, 'messenger.transport.sqs.factory', 0);
 
             $container->getDefinition('messenger.transport.sqs.factory')
                 ->addTag('messenger.transport_factory');
         }
 
-        if (ContainerBuilder::willBeAvailable(
-            'symfony/beanstalkd-messenger',
-            BeanstalkdTransportFactory::class,
-            ['symfony/framework-bundle', 'symfony/messenger']
-        )) {
+        if (class_exists(BeanstalkdTransportFactory::class)) {
             $container->getDefinition('messenger.transport.beanstalkd.factory')
                 ->addTag('messenger.transport_factory');
         }
@@ -152,7 +136,7 @@ final class T3MessengerPass implements CompilerPassInterface
             }
         }
 
-        if (empty($config['transports'])) {
+        if ($config['transports'] === [] || $config['transports'] === null) {
             $container->removeDefinition('messenger.transport.symfony_serializer');
             $container->removeDefinition('messenger.transport.amqp.factory');
             $container->removeDefinition('messenger.transport.redis.factory');
@@ -304,7 +288,7 @@ final class T3MessengerPass implements CompilerPassInterface
         $container->getDefinition('messenger.retry_strategy_locator')
             ->replaceArgument(0, $transportRetryReferences);
 
-        if (! $transportRateLimiterReferences) {
+        if ($transportRateLimiterReferences === []) {
             $container->removeDefinition('messenger.rate_limiter_locator');
         } else {
             $container->getDefinition('messenger.rate_limiter_locator')
@@ -397,14 +381,14 @@ final class T3MessengerPass implements CompilerPassInterface
         return null;
     }
 
-    private function addLoggerArgument(ContainerBuilder $container, string $id, int $int)
+    private function addLoggerArgument(ContainerBuilder $container, string $id, int $int): void
     {
         $definition = $container->findDefinition($id);
 
         $channel = $id;
-        if ($definition->getClass()) {
+        if ($definition->getClass() !== null) {
             $reflectionClass = $container->getReflectionClass($definition->getClass(), false);
-            if ($reflectionClass) {
+            if ($reflectionClass !== null) {
                 $channel = $this->getClassChannelName($reflectionClass) ?? $channel;
             }
         }

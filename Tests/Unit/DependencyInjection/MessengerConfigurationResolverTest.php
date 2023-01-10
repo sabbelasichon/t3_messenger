@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the "t3_tactician" Extension for TYPO3 CMS.
+ * This file is part of the "t3_messenger" Extension for TYPO3 CMS.
  *
  * For the full copyright and license information, please read the
  * LICENSE.txt file that was distributed with this source code.
@@ -25,7 +25,7 @@ final class MessengerConfigurationResolverTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array>
+     * @return \Generator<string, mixed>
      */
     public function provideInvalidRetryStrategyConfigurations(): \Generator
     {
@@ -100,6 +100,8 @@ final class MessengerConfigurationResolverTest extends TestCase
     }
 
     /**
+     * @param array<mixed> $configuration
+     *
      * @dataProvider provideInvalidRetryStrategyConfigurations
      */
     public function testThatAnExceptionIsThrownIfTheTransportsRetryStrategyConfigurationIsInvalid(
@@ -150,7 +152,7 @@ final class MessengerConfigurationResolverTest extends TestCase
         $this->subject->resolve($configuration);
     }
 
-    public function testThatTheDefaultMiddlewareOptionIsNormalizedCorrectlyIfBoolean()
+    public function testThatTheDefaultMiddlewareOptionIsNormalizedCorrectlyIfBoolean(): void
     {
         // Arrange
         $configuration = [
@@ -181,7 +183,7 @@ final class MessengerConfigurationResolverTest extends TestCase
         );
     }
 
-    public function testThatTheDefaultMiddlewareOptionIsNormalizedCorrectlyIfStringWithValueAllowNoHandlers()
+    public function testThatTheDefaultMiddlewareOptionIsNormalizedCorrectlyIfStringWithValueAllowNoHandlers(): void
     {
         // Arrange
         $configuration = [
@@ -212,7 +214,7 @@ final class MessengerConfigurationResolverTest extends TestCase
         );
     }
 
-    public function testThatTheMiddlewareOptionIsNormalizedCorrectly()
+    public function testThatTheMiddlewareOptionIsNormalizedCorrectly(): void
     {
         // Arrange
         $configuration = [

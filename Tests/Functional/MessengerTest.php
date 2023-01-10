@@ -13,8 +13,13 @@ namespace Ssch\T3Messenger\Tests\Functional;
 
 use Ssch\T3Messenger\Exception\ValidationFailedException;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyCommand;
+use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyFailingCommand;
+use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyOtherCommand;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Service\MyService;
+use Symfony\Component\Messenger\EventListener\StopWorkerOnFailureLimitListener;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Messenger\Transport\TransportInterface;
+use Symfony\Component\Messenger\Worker;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
@@ -45,5 +50,32 @@ final class MessengerTest extends FunctionalTestCase
         $this->expectException(ValidationFailedException::class);
 
         $this->get(MyService::class)->dispatch(new MyCommand('notvalidemail'));
+    }
+
+    public function testThatCommandIsHandledSynchronously(): void
+    {
+        $envelope = $this->get(MyService::class)->dispatch(new MyOtherCommand('note'));
+        $handledStamps = $envelope->all(HandledStamp::class);
+        self::assertCount(1, $handledStamps);
+    }
+
+    public function testThatFailingCommandIsTransferredToFailureTransport(): void
+    {
+        $this->get(MyService::class)->dispatch(new MyFailingCommand('note'));
+
+        $receivers = [
+            'async' => $this->get('messenger.transport.async'),
+        ];
+
+        /** @var \Symfony\Component\EventDispatcher\EventDispatcher $eventDispatcher */
+        $eventDispatcher = $this->get('event_dispatcher');
+        $eventDispatcher->addSubscriber(new StopWorkerOnFailureLimitListener(1));
+
+        $worker = new Worker($receivers, $this->get('command.bus'), $eventDispatcher);
+        $worker->run();
+
+        /** @var TransportInterface $transport */
+        $transport = $this->get('messenger.transport.failed');
+        self::assertCount(1, $transport->get());
     }
 }

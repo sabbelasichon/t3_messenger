@@ -7,7 +7,7 @@ on:
 
 env:
     # see https://github.com/composer/composer/issues/9368#issuecomment-718112361
-    COMPOSER_ROOT_VERSION: "dev-master"
+    COMPOSER_ROOT_VERSION: "dev-main"
 
 jobs:
     weekly_pull_requests:
@@ -47,7 +47,7 @@ jobs:
                 with:
                     token: ${{ secrets.GITHUB_TOKEN }}
                     commit-message: "[automated] ${{ matrix.actions.name }}"
-                    base: 'master'
+                    base: 'main'
                     branch: ${{ matrix.actions.branch }}
                     title: '[automated] ${{ matrix.actions.name }}'
                     delete-branch: true

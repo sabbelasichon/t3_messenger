@@ -83,7 +83,7 @@ final class CacheItem implements CacheItemInterface
         if ($time === null) {
             $this->expiry = null;
         } elseif ($time instanceof DateInterval) {
-            $this->expiry = microtime(true) + DateTime::createFromFormat('U', 0)->add($time)->format('U.u');
+            $this->expiry = microtime(true) + DateTime::createFromFormat('U', '0')->add($time)->format('U.u');
         } elseif (is_int($time)) {
             $this->expiry = $time + microtime(true);
         } else {

@@ -10,6 +10,7 @@ declare(strict_types=1);
  */
 
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyCommand;
+use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyFailingCommand;
 
 return [
     'failure_transport' => 'failed',
@@ -17,6 +18,9 @@ return [
     'transports' => [
         'async' => [
             'dsn' => 'typo3-db://default',
+            'retry_strategy' => [
+                'max_retries' => 0,
+            ],
         ],
         'failed' => [
             'dsn' => 'typo3-db://default',
@@ -27,6 +31,9 @@ return [
     ],
     'routing' => [
         MyCommand::class => [
+            'senders' => ['async'],
+        ],
+        MyFailingCommand::class => [
             'senders' => ['async'],
         ],
     ],

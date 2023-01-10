@@ -21,6 +21,9 @@ use TYPO3\CMS\Core\Core\Environment;
 
 final class DoctrineTransportFactory implements TransportFactoryInterface
 {
+    /**
+     * @param array<mixed> $options
+     */
     public function createTransport(string $dsn, array $options, SerializerInterface $serializer): TransportInterface
     {
         $databaseConfiguration = $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default'];
@@ -36,6 +39,9 @@ final class DoctrineTransportFactory implements TransportFactoryInterface
         return new DoctrineTransport($doctrineTransportConnection, $serializer);
     }
 
+    /**
+     * @param array<mixed> $options
+     */
     public function supports(string $dsn, array $options): bool
     {
         return str_starts_with($dsn, 'typo3-db://');
