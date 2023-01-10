@@ -22,7 +22,8 @@ final class MyMessengerHandler implements MessageSubscriberInterface, LoggerAwar
 
     public function firstMessageMethod(MyCommand $command): void
     {
-        echo 'test';
+        throw new \InvalidArgumentException('An error occured');
+        $this->logger->critical(sprintf('Hi %s', $command->getEmail()));
     }
 
     public static function getHandledMessages(): iterable

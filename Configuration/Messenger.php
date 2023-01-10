@@ -1,13 +1,15 @@
-# TYPO3 Symfony messenger adapter
-Integrates Symfony Messenger into TYPO3
-[https://symfony.com/doc/current/components/messenger.html](https://symfony.com/doc/current/components/messenger.html)
+<?php
 
-## Integration guide
+declare(strict_types=1);
 
-The extension basically provides the same functionality as if you would use the messenger in the Symfony Framework.
-In order to configure the messenger you have to put a Messenger.php file under the Configuration of an extension.
+/*
+ * This file is part of the "t3_tactician" Extension for TYPO3 CMS.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
+ */
 
-```php
+use Ssch\T3Messenger\Command\MyCommand;
 
 return [
     'failure_transport' => 'failed',
@@ -24,7 +26,9 @@ return [
         ],
     ],
     'routing' => [
-        MyCommand::class => ['senders' => ['async']],
+        MyCommand::class => [
+            'senders' => ['async'],
+        ],
     ],
     'buses' => [
         'command.bus' => [
@@ -41,5 +45,3 @@ return [
         ],
     ],
 ];
-
-```

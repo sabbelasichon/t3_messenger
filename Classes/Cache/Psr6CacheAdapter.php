@@ -26,7 +26,7 @@ final class Psr6CacheAdapter implements CacheItemPoolInterface
 
     public function getItem(string $key): CacheItemInterface
     {
-        $data = $this->cache->get($key);
+        $data = $this->cache->get($this->hash($key));
 
         return new CacheItem($key, $data, true);
     }
@@ -43,7 +43,7 @@ final class Psr6CacheAdapter implements CacheItemPoolInterface
 
     public function hasItem(string $key): bool
     {
-        return $this->cache->has($key);
+        return $this->cache->has($this->hash($key));
     }
 
     public function clear(): bool
@@ -53,13 +53,13 @@ final class Psr6CacheAdapter implements CacheItemPoolInterface
 
     public function deleteItem(string $key): bool
     {
-        return $this->cache->remove($key);
+        return $this->cache->remove($this->hash($key));
     }
 
     public function deleteItems(array $keys): bool
     {
         foreach ($keys as $key) {
-            if (! $this->deleteItem($key)) {
+            if (! $this->deleteItem($this->hash($key))) {
                 return false;
             }
         }
@@ -70,7 +70,7 @@ final class Psr6CacheAdapter implements CacheItemPoolInterface
     public function save(CacheItemInterface $item): bool
     {
         try {
-            $this->cache->set($item->getKey(), $item->get());
+            $this->cache->set($this->hash($item->getKey()), $item->get());
 
             return true;
         } catch (\Throwable $e) {
@@ -86,5 +86,10 @@ final class Psr6CacheAdapter implements CacheItemPoolInterface
     public function commit(): bool
     {
         throw new \BadMethodCallException('Not implemented yet');
+    }
+
+    private function hash(string $key): string
+    {
+        return sha1($key);
     }
 }

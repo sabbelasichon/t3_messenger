@@ -41,8 +41,10 @@ use Symfony\Component\Messenger\Command\StopWorkersCommand;
 use Symfony\Component\Messenger\DependencyInjection\MessengerPass;
 use Symfony\Component\Messenger\EventListener\AddErrorDetailsStampListener;
 use Symfony\Component\Messenger\EventListener\DispatchPcntlSignalListener;
+use Symfony\Component\Messenger\EventListener\ResetServicesListener;
 use Symfony\Component\Messenger\EventListener\SendFailedMessageForRetryListener;
 use Symfony\Component\Messenger\EventListener\SendFailedMessageToFailureTransportListener;
+use Symfony\Component\Messenger\EventListener\StopWorkerOnCustomStopExceptionListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnSigtermSignalListener;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
@@ -155,20 +157,43 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->args([
             abstract_arg('senders service locator'),
             service('messenger.retry_strategy_locator'),
+            abstract_arg('messenger logger'),
             service('event_dispatcher'),
         ])
+        ->tag('kernel.event_subscriber')
+
         ->set('messenger.failure.add_error_details_stamp_listener', AddErrorDetailsStampListener::class)
+        ->tag('kernel.event_subscriber')
+
         ->set(
             'messenger.failure.send_failed_message_to_failure_transport_listener',
             SendFailedMessageToFailureTransportListener::class
         )
         ->args([abstract_arg('failure transports')])
+        ->tag('kernel.event_subscriber')
+
         ->set('messenger.listener.dispatch_pcntl_signal_listener', DispatchPcntlSignalListener::class)
+        ->tag('kernel.event_subscriber')
 
         ->set('messenger.listener.stop_worker_on_restart_signal_listener', StopWorkerOnRestartSignalListener::class)
         ->args([service('cache.messenger.restart_workers_signal')])
+        ->tag('kernel.event_subscriber')
+
+        ->set(
+            'messenger.listener.stop_worker_on_stop_exception_listener',
+            StopWorkerOnCustomStopExceptionListener::class
+        )
+        ->tag('kernel.event_subscriber')
 
         ->set('messenger.listener.stop_worker_on_sigterm_signal_listener', StopWorkerOnSigtermSignalListener::class)
+        ->args([abstract_arg('messenger logger')])
+        ->tag('kernel.event_subscriber')
+
+//        ->set('messenger.listener.reset_services', ResetServicesListener::class)
+//        ->args([
+//            service('services_resetter'),
+//        ])
+
         ->set('messenger.routable_message_bus', RoutableMessageBus::class)
         ->args([abstract_arg('message bus locator'), service('messenger.default_bus')]);
 
