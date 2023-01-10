@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Service;
 
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class MyService
@@ -22,8 +23,8 @@ final class MyService
         $this->messageBus = $messageBus;
     }
 
-    public function dispatch($command): void
+    public function dispatch($command): Envelope
     {
-        $this->messageBus->dispatch($command);
+        return $this->messageBus->dispatch($command);
     }
 }

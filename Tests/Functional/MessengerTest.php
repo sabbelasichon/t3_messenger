@@ -13,7 +13,9 @@ namespace Ssch\T3Messenger\Tests\Functional;
 
 use Ssch\T3Messenger\Exception\ValidationFailedException;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyCommand;
+use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyOtherCommand;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Service\MyService;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
@@ -45,5 +47,12 @@ final class MessengerTest extends FunctionalTestCase
         $this->expectException(ValidationFailedException::class);
 
         $this->get(MyService::class)->dispatch(new MyCommand('notvalidemail'));
+    }
+
+    public function testThatCommandIsHandledSynchronously(): void
+    {
+        $envelope = $this->get(MyService::class)->dispatch(new MyOtherCommand('note'));
+        $handledStamps = $envelope->all(HandledStamp::class);
+        self::assertCount(1, $handledStamps);
     }
 }
