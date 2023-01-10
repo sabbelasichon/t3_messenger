@@ -1,0 +1,36 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Parameter \\#2 \\$packageCache of static method TYPO3\\\\CMS\\\\Core\\\\Core\\\\Bootstrap\\:\\:createPackageManager\\(\\) expects TYPO3\\\\CMS\\\\Core\\\\Package\\\\Cache\\\\PackageCacheInterface, TYPO3\\\\CMS\\\\Core\\\\Cache\\\\Frontend\\\\FrontendInterface given\\.$#"
+			count: 1
+			path: Classes/DependencyInjection/Compiler/T3MessengerPass.php
+
+		-
+			message: "#^Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\AmazonSqs\\\\Transport\\\\AmazonSqsTransportFactory not found\\.$#"
+			count: 1
+			path: Configuration/Services.php
+
+		-
+			message: "#^Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Amqp\\\\Transport\\\\AmqpTransportFactory not found\\.$#"
+			count: 1
+			path: Configuration/Services.php
+
+		-
+			message: "#^Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Beanstalkd\\\\Transport\\\\BeanstalkdTransportFactory not found\\.$#"
+			count: 1
+			path: Configuration/Services.php
+
+		-
+			message: "#^Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Redis\\\\Transport\\\\RedisTransportFactory not found\\.$#"
+			count: 1
+			path: Configuration/Services.php
+
+		-
+			message: "#^Function Symfony\\\\Component\\\\DependencyInjection\\\\Loader\\\\Configurator\\\\abstract_arg not found\\.$#"
+			count: 25
+			path: Configuration/Services.php
+
+		-
+			message: "#^Used function Symfony\\\\Component\\\\DependencyInjection\\\\Loader\\\\Configurator\\\\abstract_arg not found\\.$#"
+			count: 1
+			path: Configuration/Services.php

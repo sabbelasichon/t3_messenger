@@ -49,6 +49,8 @@ final class Psr6CacheAdapter implements CacheItemPoolInterface
     public function clear(): bool
     {
         $this->cache->flush();
+
+        return true;
     }
 
     public function deleteItem(string $key): bool
