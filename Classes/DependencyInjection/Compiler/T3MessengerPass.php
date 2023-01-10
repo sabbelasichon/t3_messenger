@@ -317,18 +317,21 @@ final class T3MessengerPass implements CompilerPassInterface
             $container->getDefinition('console.command.messenger_failed_messages_retry')
                 ->addTag('console.command', [
                     'command' => 't3_messenger:failed-messages-retry',
+                    'schedulable' => false,
                 ])
                 ->replaceArgument(0, $config['failure_transport']);
 
             $container->getDefinition('console.command.messenger_failed_messages_show')
                 ->addTag('console.command', [
                     'command' => 't3_messenger:failed-messages-show',
+                    'schedulable' => false,
                 ])
                 ->replaceArgument(0, $config['failure_transport']);
 
             $container->getDefinition('console.command.messenger_failed_messages_remove')
                 ->addTag('console.command', [
                     'command' => 't3_messenger:failed-messages-remove',
+                    'schedulable' => false,
                 ])
                 ->replaceArgument(0, $config['failure_transport']);
 

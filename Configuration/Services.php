@@ -204,6 +204,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ])
         ->tag('console.command', [
             'command' => 't3_messenger:debug',
+            'schedulable' => false,
         ]);
 
     $services->set('console.command.messenger_failed_messages_retry', FailedMessagesRetryCommand::class)
@@ -233,7 +234,10 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
 
     $services->set('console.command.messenger_stop_workers', StopWorkersCommand::class)
         ->args([service('cache.messenger.restart_workers_signal')])
-        ->tag('console.command');
+        ->tag('console.command', [
+            'command' => 't3_messenger:stop-workers',
+            'schedulable' => false,
+        ]);
 
     $services->set('console.command.messenger_consume_messages', ConsumeMessagesCommand::class)
         ->args([
@@ -250,6 +254,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ])
         ->tag('console.command', [
             'command' => 't3_messenger:consume-messages',
+            'schedulable' => false,
         ]);
 
     if (class_exists(StatsCommand::class)) {
@@ -257,6 +262,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             ->args([service('messenger.receiver_locator'), abstract_arg('Receivers names')])
             ->tag('console.command', [
                 'command' => 't3_messenger:message-stats',
+                'schedulable' => false,
             ]);
     }
 
@@ -264,11 +270,13 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->args([service('messenger.receiver_locator'), []])
         ->tag('console.command', [
             'command' => 't3_messenger:setup-transports',
+            'schedulable' => false,
         ]);
 
     $services->set(MyDummyConsoleCommand::class)
         ->tag('console.command', [
             'command' => 't3_messenger:dummy-dispatch',
+            'schedulable' => false,
         ]);
 
     // Register autoconfiguration for message handlers via interface or attributes
