@@ -12,6 +12,7 @@ declare(strict_types=1);
 use Ssch\T3Messenger\Cache\Psr6CacheAdapter;
 use Ssch\T3Messenger\Console\MyDummyConsoleCommand;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
+use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
 use Ssch\T3Messenger\Middleware\ValidationMiddleware;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\DependencyInjection\ChildDefinition;
@@ -35,6 +36,7 @@ use Symfony\Component\Messenger\Command\FailedMessagesRemoveCommand;
 use Symfony\Component\Messenger\Command\FailedMessagesRetryCommand;
 use Symfony\Component\Messenger\Command\FailedMessagesShowCommand;
 use Symfony\Component\Messenger\Command\SetupTransportsCommand;
+use Symfony\Component\Messenger\Command\StatsCommand;
 use Symfony\Component\Messenger\Command\StopWorkersCommand;
 use Symfony\Component\Messenger\DependencyInjection\MessengerPass;
 use Symfony\Component\Messenger\EventListener\AddErrorDetailsStampListener;
@@ -90,22 +92,28 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->set('messenger.senders_locator', SendersLocator::class)
         ->args([abstract_arg('per message senders map'), abstract_arg('senders service locator')])
         ->set('messenger.middleware.send_message', SendMessageMiddleware::class)
+        ->abstract()
         ->args([service('messenger.senders_locator'), service('event_dispatcher')])
+        ->tag('psr.logger_aware')
 
         // Message encoding/decoding
         ->set('messenger.transport.symfony_serializer', Serializer::class)
         ->args([service('serializer'), abstract_arg('format'), abstract_arg('context')])
+
         ->set('messenger.transport.native_php_serializer', PhpSerializer::class)
         // Middleware
         ->set('messenger.middleware.handle_message', HandleMessageMiddleware::class)
         ->abstract()
         ->args([abstract_arg('bus handler resolver')])
+
         ->set('messenger.middleware.add_bus_name_stamp_middleware', AddBusNameStampMiddleware::class)
         ->abstract()
+
         ->set('messenger.middleware.dispatch_after_current_bus', DispatchAfterCurrentBusMiddleware::class)
         ->set('messenger.middleware.reject_redelivered_message_middleware', RejectRedeliveredMessageMiddleware::class)
         ->set('messenger.middleware.failed_message_processing_middleware', FailedMessageProcessingMiddleware::class)
         ->set('messenger.middleware.validation', ValidationMiddleware::class)
+        ->abstract()
         // Discovery
         ->set('messenger.receiver_locator', ServiceLocator::class)
         ->args([[]])
@@ -206,6 +214,14 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             'command' => 't3_messenger:consume-messages',
         ]);
 
+    if (class_exists(StatsCommand::class)) {
+        $services->set('console.command.messenger_stats', StatsCommand::class)
+            ->args([service('messenger.receiver_locator'), abstract_arg('Receivers names')])
+            ->tag('console.command', [
+                'command' => 't3_messenger:message-stats',
+            ]);
+    }
+
     $services->set('console.command.messenger_setup_transports', SetupTransportsCommand::class)
         ->args([service('messenger.receiver_locator'), []])
         ->tag('console.command', [
@@ -245,6 +261,6 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     }
 
     $containerBuilder->addCompilerPass($registerListenersPass, PassConfig::TYPE_BEFORE_REMOVING);
-    $containerBuilder->addCompilerPass(new T3MessengerPass());
+    $containerBuilder->addCompilerPass(new T3MessengerPass(new MessengerConfigurationResolver()));
     $containerBuilder->addCompilerPass(new MessengerPass());
 };

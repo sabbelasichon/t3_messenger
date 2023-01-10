@@ -362,7 +362,7 @@ final class T3MessengerPass implements CompilerPassInterface
             $attributes = $class->getAttributes(Channel::class, \ReflectionAttribute::IS_INSTANCEOF);
             foreach ($attributes as $channel) {
                 return $channel->newInstance()
-->name;
+                    ->name;
             }
         }
 
