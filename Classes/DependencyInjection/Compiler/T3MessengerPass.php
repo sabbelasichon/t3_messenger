@@ -54,7 +54,7 @@ final class T3MessengerPass implements CompilerPassInterface
             );
         }
 
-        $config = $this->createCommandBusConfigurationFromPackages();
+        $config = $this->collectMessengerConfigurationsFromPackages();
 
         if (count($config) === 0) {
             return;
@@ -337,7 +337,7 @@ final class T3MessengerPass implements CompilerPassInterface
         $this->addLoggerArgument($container, 'messenger.retry.send_failed_message_for_retry_listener', 2);
     }
 
-    private function createCommandBusConfigurationFromPackages(): array
+    private function collectMessengerConfigurationsFromPackages(): array
     {
         $versionInformation = GeneralUtility::makeInstance(Typo3Version::class);
         if ($versionInformation->getMajorVersion() >= 11) {
