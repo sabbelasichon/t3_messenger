@@ -22,18 +22,25 @@ final class MessengerProvider extends AbstractProvider
 
     private PackageManager $packageManager;
 
+    private array $mapping;
+
     public function __construct(
         MessengerConfigurationResolver $messengerConfigurationResolver,
-        PackageManager $packageManager
+        PackageManager $packageManager,
+        array $mapping
     ) {
         $this->messengerConfigurationResolver = $messengerConfigurationResolver;
         $this->packageManager = $packageManager;
+        $this->mapping = $mapping;
     }
 
     public function getConfiguration(): array
     {
         $config = (new MessengerConfigurationCollector($this->packageManager))->collect();
 
-        return $this->messengerConfigurationResolver->resolve($config->getArrayCopy());
+        return [
+            'Messenger Configuration' => $this->messengerConfigurationResolver->resolve($config->getArrayCopy()),
+            'Messenger Mapping' => $this->mapping,
+        ];
     }
 }
