@@ -17,6 +17,7 @@ return [
     'default_bus' => 'command.bus',
     'transports' => [
         'async' => [
+            'serializer' => 'messenger.transport.symfony_serializer',
             'dsn' => 'typo3-db://default',
             'retry_strategy' => [
                 'max_retries' => 0,
@@ -40,7 +41,12 @@ return [
     'buses' => [
         'command.bus' => [
             'middleware' => [
-                'id' => 'validation',
+                'validation' => [
+                    'id' => 'validation',
+                ],
+                'router_context' => [
+                    'id' => 'router_context',
+                ],
             ],
         ],
         'query.bus' => [
