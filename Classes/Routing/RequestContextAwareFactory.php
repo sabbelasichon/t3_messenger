@@ -33,7 +33,7 @@ final class RequestContextAwareFactory
             $requestContext->fromRequest($this->httpFoundationFactory->createRequest($this->getRequest()));
         }
 
-        return new RequestContextService($requestContext);
+        return new RequestContextAware($requestContext);
     }
 
     private function getRequest(): ?ServerRequestInterface

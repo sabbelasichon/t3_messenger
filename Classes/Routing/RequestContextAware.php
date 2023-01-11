@@ -14,7 +14,7 @@ namespace Ssch\T3Messenger\Routing;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RequestContextAwareInterface;
 
-final class RequestContextService implements RequestContextAwareInterface
+final class RequestContextAware implements RequestContextAwareInterface
 {
     private RequestContext $context;
 
