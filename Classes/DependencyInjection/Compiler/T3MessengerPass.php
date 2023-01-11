@@ -35,6 +35,7 @@ use TYPO3\CMS\Core\Log\Channel;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Package\PackageManager;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final class T3MessengerPass implements CompilerPassInterface
@@ -348,19 +349,21 @@ final class T3MessengerPass implements CompilerPassInterface
             $coreCache = Bootstrap::createCache('core');
             $packageManager = Bootstrap::createPackageManager(PackageManager::class, $coreCache);
         }
+        //
+        //        $config = new \ArrayObject();
+        //        foreach ($packageManager->getAvailablePackages() as $package) {
+        //            $commandBusConfigurationFile = $package->getPackagePath() . 'Configuration/Messenger.php';
+        //            if (file_exists($commandBusConfigurationFile)) {
+        //                $commandBusInPackage = require $commandBusConfigurationFile;
+        //                if (is_array($commandBusInPackage)) {
+        //                    $config->exchangeArray(array_replace_recursive($config->getArrayCopy(), $commandBusInPackage));
+        //                }
+        //            }
+        //        }
 
-        $config = new \ArrayObject();
-        foreach ($packageManager->getAvailablePackages() as $package) {
-            $commandBusConfigurationFile = $package->getPackagePath() . 'Configuration/Messenger.php';
-            if (file_exists($commandBusConfigurationFile)) {
-                $commandBusInPackage = require $commandBusConfigurationFile;
-                if (is_array($commandBusInPackage)) {
-                    $config->exchangeArray(array_replace_recursive($config->getArrayCopy(), $commandBusInPackage));
-                }
-            }
-        }
-
-        return $this->messengerConfigurationResolver->resolve($config->getArrayCopy());
+        ExtensionManagementUtility::setPackageManager($packageManager);
+        ExtensionManagementUtility::loadExtLocalconf(false);
+        return $this->messengerConfigurationResolver->resolve($GLOBALS['TYPO3_CONF_VARS']['SYS']['messenger'] ?? []);
     }
 
     private function getClassChannelName(\ReflectionClass $class): ?string

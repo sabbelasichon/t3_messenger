@@ -42,6 +42,8 @@ final class MessengerTest extends FunctionalTestCase
         'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/sites' => 'typo3conf/sites',
     ];
 
+    protected $configurationToUseInTestInstance = [];
+
     private Site $site;
 
     protected function setUp(): void
