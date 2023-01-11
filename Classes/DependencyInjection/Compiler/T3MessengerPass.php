@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\DependencyInjection\Compiler;
 
+use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationCollector;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -349,17 +350,7 @@ final class T3MessengerPass implements CompilerPassInterface
             $packageManager = Bootstrap::createPackageManager(PackageManager::class, $coreCache);
         }
 
-        $config = new \ArrayObject();
-        foreach ($packageManager->getAvailablePackages() as $package) {
-            $commandBusConfigurationFile = $package->getPackagePath() . 'Configuration/Messenger.php';
-            if (file_exists($commandBusConfigurationFile)) {
-                $commandBusInPackage = require $commandBusConfigurationFile;
-                if (is_array($commandBusInPackage)) {
-                    $config->exchangeArray(array_replace_recursive($config->getArrayCopy(), $commandBusInPackage));
-                }
-            }
-        }
-
+        $config = (new MessengerConfigurationCollector($packageManager))->collect();
         return $this->messengerConfigurationResolver->resolve($config->getArrayCopy());
     }
 

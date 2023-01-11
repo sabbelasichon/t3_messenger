@@ -10,6 +10,7 @@ declare(strict_types=1);
  */
 
 use Ssch\T3Messenger\Cache\Psr6CacheAdapter;
+use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
 use Ssch\T3Messenger\Middleware\ValidationMiddleware;
@@ -80,7 +81,20 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->autowire()
         ->autoconfigure();
 
-    $services->load('Ssch\\T3Messenger\\', __DIR__ . '/../Classes/')->exclude([__DIR__ . '/../Classes/Command']);
+    $services->load('Ssch\\T3Messenger\\', __DIR__ . '/../Classes/')
+        ->exclude([__DIR__ . '/../Classes/Command', __DIR__ . '/../Classes/DependencyInjection']);
+
+    $services->set(MessengerConfigurationResolver::class);
+    // Lowlevel Configuration Provider
+    $services->set(MessengerProvider::class)
+        ->tag(
+            'lowlevel.configuration.module.provider',
+            [
+                'identifier' => 'messenger',
+                'label' => 'Messenger Configuration',
+                'after' => 'mfaProviders',
+            ]
+        );
 
     $services->set(HttpFoundationFactory::class);
     $services->set('router')
