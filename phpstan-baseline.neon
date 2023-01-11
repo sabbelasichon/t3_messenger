@@ -27,7 +27,7 @@ parameters:
 
 		-
 			message: "#^Function Symfony\\\\Component\\\\DependencyInjection\\\\Loader\\\\Configurator\\\\abstract_arg not found\\.$#"
-			count: 25
+			count: 26
 			path: Configuration/Services.php
 
 		-
