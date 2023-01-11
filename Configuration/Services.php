@@ -10,6 +10,8 @@ declare(strict_types=1);
  */
 
 use Ssch\T3Messenger\Cache\Psr6CacheAdapter;
+use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
+use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerProviderPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
 use Ssch\T3Messenger\Middleware\ValidationMiddleware;
@@ -72,6 +74,7 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DependencyInjection\ConsoleCommandPass;
+use TYPO3\CMS\Core\Package\PackageManager;
 
 return static function (ContainerConfigurator $containerConfigurator, ContainerBuilder $containerBuilder): void {
     $services = $containerConfigurator->services();
@@ -80,7 +83,25 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->autowire()
         ->autoconfigure();
 
-    $services->load('Ssch\\T3Messenger\\', __DIR__ . '/../Classes/')->exclude([__DIR__ . '/../Classes/Command']);
+    $services->load('Ssch\\T3Messenger\\', __DIR__ . '/../Classes/')
+        ->exclude([__DIR__ . '/../Classes/Command', __DIR__ . '/../Classes/DependencyInjection']);
+
+    $services->set(MessengerConfigurationResolver::class);
+    // Lowlevel Configuration Provider
+    $services->set(MessengerProvider::class)
+        ->args([
+            service(MessengerConfigurationResolver::class),
+            service(PackageManager::class),
+            abstract_arg('mapping'),
+        ])
+        ->tag(
+            'lowlevel.configuration.module.provider',
+            [
+                'identifier' => 'messenger',
+                'label' => 'Messenger Configuration',
+                'after' => 'mfaProviders',
+            ]
+        );
 
     $services->set(HttpFoundationFactory::class);
     $services->set('router')
@@ -315,4 +336,5 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $containerBuilder->addCompilerPass(new T3MessengerPass(new MessengerConfigurationResolver()));
     $containerBuilder->addCompilerPass(new MessengerPass());
     $containerBuilder->addCompilerPass(new ConsoleCommandPass('console.command'));
+    $containerBuilder->addCompilerPass(new MessengerProviderPass());
 };
