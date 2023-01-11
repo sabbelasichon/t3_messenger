@@ -89,7 +89,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $services->set('event_dispatcher', EventDispatcher::class);
     $services->set('cache.messenger', FrontendInterface::class)
         ->factory([service(CacheManager::class), 'getCache'])
-        ->args(['extbase']);
+        ->args(['t3_messenger']);
 
     $services->set(Psr6CacheAdapter::class)->args([service('cache.messenger')]);
     $services->alias('cache.messenger.restart_workers_signal', Psr6CacheAdapter::class);
