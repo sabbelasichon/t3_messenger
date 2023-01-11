@@ -12,8 +12,11 @@ declare(strict_types=1);
 namespace Ssch\T3Messenger\Transport;
 
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\Connection;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\DoctrineTransport;
+use Symfony\Component\Messenger\Bridge\Doctrine\Transport\PostgreSqlConnection;
+use Symfony\Component\Messenger\Exception\TransportException;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
@@ -22,21 +25,36 @@ use TYPO3\CMS\Core\Core\Environment;
 final class DoctrineTransportFactory implements TransportFactoryInterface
 {
     /**
+     * @var \Doctrine\DBAL\Connection[]
+     */
+    private static array $connections = [];
+
+    /**
      * @param array<mixed> $options
      */
     public function createTransport(string $dsn, array $options, SerializerInterface $serializer): TransportInterface
     {
-        $databaseConfiguration = $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default'];
+        $useNotify = ($options['use_notify'] ?? true);
+        unset($options['transport_name'], $options['use_notify']);
+        // Always allow PostgreSQL-specific keys, to be able to transparently fallback to the native driver when LISTEN/NOTIFY isn't available
+        $configuration = PostgreSqlConnection::buildConfiguration($dsn, $options);
 
-        // I got always an exception in the testing context: PDOException: SQLSTATE[HY093]: Invalid parameter number: parameter was not defined
-        if (Environment::getContext()->isTesting()) {
-            unset($databaseConfiguration['wrapperClass']);
+        try {
+            $driverConnection = $this->getConnectionByName($configuration['connection']);
+
+            if ($useNotify === true && $driverConnection->getDatabasePlatform() instanceof PostgreSQLPlatform) {
+                $connection = new PostgreSqlConnection($configuration, $driverConnection);
+            } else {
+                $connection = new Connection($configuration, $driverConnection);
+            }
+        } catch (\Throwable $e) {
+            throw new TransportException(sprintf(
+                'Could not find Doctrine connection from Messenger DSN "%s".',
+                $dsn
+            ), 0, $e);
         }
 
-        $connection = DriverManager::getConnection($databaseConfiguration);
-        $doctrineTransportConnection = new Connection($options, $connection);
-
-        return new DoctrineTransport($doctrineTransportConnection, $serializer);
+        return new DoctrineTransport($connection, $serializer);
     }
 
     /**
@@ -45,5 +63,37 @@ final class DoctrineTransportFactory implements TransportFactoryInterface
     public function supports(string $dsn, array $options): bool
     {
         return str_starts_with($dsn, 'typo3-db://');
+    }
+
+    private function getConnectionByName(string $connectionName): \Doctrine\DBAL\Connection
+    {
+        if ($connectionName === '') {
+            throw new TransportException('->getConnectionByName() requires a connection name to be provided.');
+        }
+
+        if (isset(self::$connections[$connectionName])) {
+            return self::$connections[$connectionName];
+        }
+
+        $connectionParams = $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections'][$connectionName] ?? [];
+        if ($connectionParams === null || $connectionParams === []) {
+            throw new TransportException(
+                'The requested database connection named "' . $connectionName . '" has not been configured.',
+            );
+        }
+
+        // Default to UTF-8 connection charset
+        if (! isset($connectionParams['charset'])) {
+            $connectionParams['charset'] = 'utf8';
+        }
+
+        // I got always an exception in the testing context: PDOException: SQLSTATE[HY093]: Invalid parameter number: parameter was not defined
+        if (Environment::getContext()->isTesting()) {
+            unset($connectionParams['wrapperClass']);
+        }
+
+        self::$connections[$connectionName] = DriverManager::getConnection($connectionParams);
+
+        return self::$connections[$connectionName];
     }
 }

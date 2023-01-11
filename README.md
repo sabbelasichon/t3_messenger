@@ -14,10 +14,10 @@ return [
     'default_bus' => 'command.bus',
     'transports' => [
         'async' => [
-            'dsn' => 'typo3-db://default',
+            'dsn' => 'typo3-db://Default',
         ],
         'failed' => [
-            'dsn' => 'typo3-db://default',
+            'dsn' => 'typo3-db://Default',
             'options' => [
                 'queue_name' => 'failed',
             ],
@@ -49,3 +49,33 @@ return [
 If you need to pass an Extbase entity in a message, it's better to pass the entity's primary key (or whatever relevant information the handler actually needs, like email, etc.) instead of the object.
 
 Have a look at the Symfony Documentation about [Doctrine Entities](https://symfony.com/doc/current/messenger.html#doctrine-entities-in-messages)
+
+
+## Transport Configuration
+
+Messenger supports a number of different transport types, each with their own options. Options can be passed to the transport via a DSN string or configuration.
+
+Have a look at the Symfony Documentation about [Transports](https://symfony.com/doc/current/messenger.html#transport-configuration)
+
+### Custom Doctrine Transport
+
+The extension ships the [doctrine transport](https://symfony.com/doc/current/messenger.html#doctrine-transport) with a slightly modified configuration dsn.
+Instead of using doctrine:// you have to use typo3-db://.
+
+```php
+
+return [
+    'transports' => [
+        'async' => [
+            'dsn' => 'typo3-db://Default',
+        ],
+    ],
+];
+
+```
+
+The format is typo3-db://<connection_name>, in case you have multiple connections and want to use one other than the "Default".
+The transport will automatically create a table named messenger_messages.
+
+Please have a look for further configuration details at the [doctrine transport](https://symfony.com/doc/current/messenger.html#doctrine-transport).
+

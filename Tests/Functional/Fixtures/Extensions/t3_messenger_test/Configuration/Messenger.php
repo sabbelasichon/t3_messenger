@@ -18,16 +18,13 @@ return [
     'transports' => [
         'async' => [
             'serializer' => 'messenger.transport.symfony_serializer',
-            'dsn' => 'typo3-db://default',
+            'dsn' => 'typo3-db://Default',
             'retry_strategy' => [
                 'max_retries' => 0,
             ],
         ],
         'failed' => [
-            'dsn' => 'typo3-db://default',
-            'options' => [
-                'queue_name' => 'failed',
-            ],
+            'dsn' => 'typo3-db://Default?queue_name=failed',
         ],
     ],
     'routing' => [
