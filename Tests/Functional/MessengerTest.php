@@ -45,7 +45,7 @@ final class MessengerTest extends FunctionalTestCase
         self::assertCount(1, $transport->get());
     }
 
-    public function testThatInvalidCommandThrowsAnValidationException(): void
+    public function testThatInvalidCommandThrowsAValidationException(): void
     {
         $this->expectException(ValidationFailedException::class);
 
