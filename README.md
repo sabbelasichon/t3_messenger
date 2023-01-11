@@ -43,3 +43,9 @@ return [
 ];
 
 ```
+
+## Extbase Entities in Messages
+
+If you need to pass an Extbase entity in a message, it's better to pass the entity's primary key (or whatever relevant information the handler actually needs, like email, etc.) instead of the object.
+
+Have a look at the Symfony Documentation about [Doctrine Entities](https://symfony.com/doc/current/messenger.html#doctrine-entities-in-messages)
