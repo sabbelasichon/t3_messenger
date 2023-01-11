@@ -13,6 +13,8 @@ use Ssch\T3Messenger\Cache\Psr6CacheAdapter;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
 use Ssch\T3Messenger\Middleware\ValidationMiddleware;
+use Ssch\T3Messenger\Routing\RequestContextAwareFactory;
+use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -52,6 +54,7 @@ use Symfony\Component\Messenger\Middleware\DispatchAfterCurrentBusMiddleware;
 use Symfony\Component\Messenger\Middleware\FailedMessageProcessingMiddleware;
 use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
 use Symfony\Component\Messenger\Middleware\RejectRedeliveredMessageMiddleware;
+use Symfony\Component\Messenger\Middleware\RouterContextMiddleware;
 use Symfony\Component\Messenger\Middleware\SendMessageMiddleware;
 use Symfony\Component\Messenger\Retry\MultiplierRetryStrategy;
 use Symfony\Component\Messenger\RoutableMessageBus;
@@ -64,6 +67,7 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\Sync\SyncTransportFactory;
 use Symfony\Component\Messenger\Transport\TransportFactory;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
+use Symfony\Component\Routing\RequestContextAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
@@ -78,6 +82,10 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
 
     $services->load('Ssch\\T3Messenger\\', __DIR__ . '/../Classes/')->exclude([__DIR__ . '/../Classes/Command']);
 
+    $services->set(HttpFoundationFactory::class);
+    $services->set('router')
+        ->class(RequestContextAwareInterface::class)
+        ->factory([service(RequestContextAwareFactory::class), 'create']);
     $services->set('event_dispatcher', EventDispatcher::class);
     $services->set('cache.messenger', FrontendInterface::class)
         ->factory([service(CacheManager::class), 'getCache'])
@@ -100,7 +108,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
 
         // Message encoding/decoding
         ->set('messenger.transport.symfony_serializer', Serializer::class)
-        ->args([service('serializer'), abstract_arg('format'), abstract_arg('context')])
+        ->args([service('serializer')->nullOnInvalid(), abstract_arg('format'), abstract_arg('context')])
         ->set('messenger.transport.native_php_serializer', PhpSerializer::class)
         // Middleware
         ->set('messenger.middleware.handle_message', HandleMessageMiddleware::class)
@@ -112,6 +120,8 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->set('messenger.middleware.reject_redelivered_message_middleware', RejectRedeliveredMessageMiddleware::class)
         ->set('messenger.middleware.failed_message_processing_middleware', FailedMessageProcessingMiddleware::class)
         ->set('messenger.middleware.validation', ValidationMiddleware::class)
+        ->set('messenger.middleware.router_context', RouterContextMiddleware::class)
+        ->args([service('router')])
         ->abstract()
         // Discovery
         ->set('messenger.receiver_locator', ServiceLocator::class)
