@@ -1,0 +1,23 @@
+config {
+  debug = 0
+  xhtml_cleaning = 0
+  admPanel = 0
+  disableAllHeaderCode = 0
+  sendCacheHeaders = 1
+  sys_language_uid = 0
+  absRefPrefix = /
+  linkVars = L
+  contentObjectExceptionHandler = 0
+}
+
+lib.messenger = USER_INT
+lib.messenger {
+  userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
+  extensionName = T3MessengerTest
+  pluginName = Messenger
+}
+
+page = PAGE
+page {
+  10 < lib.messenger
+}

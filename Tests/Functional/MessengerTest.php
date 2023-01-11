@@ -18,21 +18,42 @@ use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Clas
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Service\MyService;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnFailureLimitListener;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
+use Symfony\Component\Messenger\Stamp\RouterContextStamp;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 use Symfony\Component\Messenger\Worker;
+use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\TestingFramework\Core\Functional\Framework\Frontend\InternalRequest;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class MessengerTest extends FunctionalTestCase
 {
+    private const ROOT_PAGE_UID = 1;
+
     protected $testExtensionsToLoad = [
         'typo3conf/ext/t3_messenger',
         'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/Extensions/t3_messenger_test',
     ];
 
+    protected $pathsToLinkInTestInstance = [
+        'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/sites' => 'typo3conf/sites',
+    ];
+
+    private Site $site;
+
     protected function setUp(): void
     {
         parent::setUp();
+        $this->importDataSet(__DIR__ . '/Fixtures/Database/pages.xml');
+        $this->setUpFrontendRootPage(
+            self::ROOT_PAGE_UID,
+            ['EXT:t3_messenger/Tests/Functional/Fixtures/Configuration/TypoScript/Basic.typoscript']
+        );
+
+        $this->site = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByRootPageId(self::ROOT_PAGE_UID);
         $GLOBALS['LANG'] = $this->get(LanguageService::class);
     }
 
@@ -77,5 +98,21 @@ final class MessengerTest extends FunctionalTestCase
         /** @var TransportInterface $transport */
         $transport = $this->get('messenger.transport.failed');
         self::assertCount(1, $transport->get());
+    }
+
+    public function testThatRouterContextMiddlewareIsDefinedCorrectly(): void
+    {
+        $uri = new Uri($this->site->getBase()->__toString() . '/');
+
+        $response = $this->executeFrontendRequest(new InternalRequest($uri->__toString()));
+
+        /** @var TransportInterface $transport */
+        $transport = $this->get('messenger.transport.async');
+        $envelopes = $transport->get();
+        $routerContextStamp = $envelopes[0]->last(RouterContextStamp::class);
+
+        self::assertCount(1, $envelopes);
+        self::assertInstanceOf(RouterContextStamp::class, $routerContextStamp);
+        self::assertSame($routerContextStamp->getHost(), $this->site->getBase()->getHost());
     }
 }
