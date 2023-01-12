@@ -59,7 +59,7 @@ Have a look at the Symfony Documentation about [Transports](https://symfony.com/
 
 ### Custom Doctrine Transport
 
-The extension ships the [doctrine transport](https://symfony.com/doc/current/messenger.html#doctrine-transport) with a slightly modified configuration dsn.
+The extension ships the [doctrine transport](https://symfony.com/doc/current/messenger.html#doctrine-transport) with a slightly modified configuration DSN.
 Instead of using doctrine:// you have to use typo3-db://.
 
 ```php
@@ -79,3 +79,24 @@ The transport will automatically create a table named messenger_messages.
 
 Please have a look for further configuration details at the [doctrine transport](https://symfony.com/doc/current/messenger.html#doctrine-transport).
 
+## Middleware
+
+Have a look at the Symfony Documentation about [Middleware](https://symfony.com/doc/current/messenger.html#middleware) to understand the concept behind it.
+
+The extension ships with a ValidationMiddleware for the extbase Validators.
+If you want to validate your commands add the middleware the following way in your Messenger.php:
+
+```php
+return [
+    'buses' => [
+        'messenger.bus.default' => [
+            'middleware' => [
+            'middleware' => [
+                'id' => 'validation',
+            ],
+        ],
+    ],
+];
+```
+
+**Note**: The id validation is a shortcut for the service id **messenger.middleware.validation**.
