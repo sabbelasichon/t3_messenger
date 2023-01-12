@@ -44,7 +44,7 @@ final class MessengerProvider extends AbstractProvider
         ];
     }
 
-    private function commandToHandlerMapping()
+    private function commandToHandlerMapping(): array
     {
         $commandToHandlerMapping = [];
         #\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($this->mapping);exit;
@@ -87,7 +87,7 @@ final class MessengerProvider extends AbstractProvider
 
     private function formatConditions(array $options): string
     {
-        if (! $options) {
+        if ($options === []) {
             return '';
         }
 
