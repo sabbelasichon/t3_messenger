@@ -100,3 +100,9 @@ return [
 ```
 
 **Note**: The id validation is a shortcut for the service id **messenger.middleware.validation**.
+
+## ConfigurationProvider
+
+If you have installed **typo3/cms-lowlevel** you can see your Messenger configuration within the Configuration module under the section **Messenger Configuration**
+
+You cannot only see your System wide configuration but also your Messages and the assigned Handlers.
