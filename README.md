@@ -5,7 +5,7 @@ Integrates Symfony Messenger into TYPO3
 ## Integration guide
 
 The extension basically provides the same functionality as if you would use the messenger in the Symfony Framework.
-In order to configure the messenger you have to put a Messenger.php file under the Configuration of an extension.
+In order to configure the messenger you have to put a Messenger.php file under the Configuration folder of an extension.
 
 ```php
 
