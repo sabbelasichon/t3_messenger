@@ -106,3 +106,6 @@ return [
 If you have installed **typo3/cms-lowlevel** you can see your Messenger configuration within the Configuration module under the section **Messenger Configuration**
 
 You cannot only see your System wide configuration but also your Messages and the assigned Handlers.
+
+## Further reading
+[Batch processing with Messenger](https://wolfgang-klinger.medium.com/how-to-handle-messages-in-batches-with-symfony-messenger-c91b5aa1c8b1)
