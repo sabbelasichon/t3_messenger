@@ -14,6 +14,7 @@ use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerProviderPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
+use Ssch\T3Messenger\EventSubscriber\ExtbaseClearPersistenceStateWorkerSubscriber;
 use Ssch\T3Messenger\Middleware\ValidationMiddleware;
 use Ssch\T3Messenger\Routing\RequestContextAwareFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
@@ -210,7 +211,11 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->set('messenger.listener.stop_worker_on_sigterm_signal_listener', StopWorkerOnSigtermSignalListener::class)
         ->args([abstract_arg('messenger logger')])
         ->tag('kernel.event_subscriber')
-
+        ->set(
+            'messenger.listener.extbase_persistence_clear_state_listener',
+            ExtbaseClearPersistenceStateWorkerSubscriber::class
+        )
+        ->tag('kernel.event_subscriber')
 //        ->set('messenger.listener.reset_services', ResetServicesListener::class)
 //        ->args([
 //            service('services_resetter'),
