@@ -51,6 +51,7 @@ use Symfony\Component\Messenger\EventListener\SendFailedMessageToFailureTranspor
 use Symfony\Component\Messenger\EventListener\StopWorkerOnCustomStopExceptionListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnSigtermSignalListener;
+use Symfony\Component\Messenger\Handler\BatchHandlerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\Middleware\AddBusNameStampMiddleware;
 use Symfony\Component\Messenger\Middleware\DispatchAfterCurrentBusMiddleware;
@@ -324,6 +325,9 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     // Register autoconfiguration for transports
     $containerBuilder->registerForAutoconfiguration(TransportFactoryInterface::class)
         ->addTag('messenger.transport_factory');
+
+    $containerBuilder->registerForAutoconfiguration(BatchHandlerInterface::class)
+        ->addTag('messenger.message_handler');
 
     // Compiler passes
     $registerListenersPass = new RegisterListenersPass();
