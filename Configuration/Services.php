@@ -45,7 +45,6 @@ use Symfony\Component\Messenger\Command\StopWorkersCommand;
 use Symfony\Component\Messenger\DependencyInjection\MessengerPass;
 use Symfony\Component\Messenger\EventListener\AddErrorDetailsStampListener;
 use Symfony\Component\Messenger\EventListener\DispatchPcntlSignalListener;
-use Symfony\Component\Messenger\EventListener\ResetServicesListener;
 use Symfony\Component\Messenger\EventListener\SendFailedMessageForRetryListener;
 use Symfony\Component\Messenger\EventListener\SendFailedMessageToFailureTransportListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnCustomStopExceptionListener;
@@ -217,11 +216,6 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             ExtbaseClearPersistenceStateWorkerSubscriber::class
         )
         ->tag('kernel.event_subscriber')
-//        ->set('messenger.listener.reset_services', ResetServicesListener::class)
-//        ->args([
-//            service('services_resetter'),
-//        ])
-
         ->set('messenger.routable_message_bus', RoutableMessageBus::class)
         ->args([abstract_arg('message bus locator'), service('messenger.default_bus')]);
 
@@ -282,8 +276,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             service('event_dispatcher'),
             abstract_arg('messenger logger'),
             [], // Receiver names
-            service('messenger.listener.reset_services')
-                ->nullOnInvalid(),
+            null,
             [], // Bus names
             service('messenger.rate_limiter_locator')
                 ->nullOnInvalid(),

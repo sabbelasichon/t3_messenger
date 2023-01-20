@@ -28,6 +28,10 @@ final class Psr6CacheAdapter implements CacheItemPoolInterface
     {
         $data = $this->cache->get($this->hash($key));
 
+        if ($data === false) {
+            return new CacheItem($key, null, false);
+        }
+
         return new CacheItem($key, $data, true);
     }
 
@@ -82,12 +86,12 @@ final class Psr6CacheAdapter implements CacheItemPoolInterface
 
     public function saveDeferred(CacheItemInterface $item): bool
     {
-        throw new \BadMethodCallException('Not implemented yet');
+        return $this->save($item);
     }
 
     public function commit(): bool
     {
-        throw new \BadMethodCallException('Not implemented yet');
+        return true;
     }
 
     private function hash(string $key): string
