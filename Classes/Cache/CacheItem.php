@@ -62,7 +62,7 @@ final class CacheItem implements CacheItemInterface
         return $this;
     }
 
-    public function expiresAt($expiration)
+    public function expiresAt($expiration): CacheItemInterface
     {
         if ($expiration === null) {
             $this->expiry = null;
@@ -78,7 +78,7 @@ final class CacheItem implements CacheItemInterface
         return $this;
     }
 
-    public function expiresAfter($time)
+    public function expiresAfter($time): CacheItemInterface
     {
         if ($time === null) {
             $this->expiry = null;

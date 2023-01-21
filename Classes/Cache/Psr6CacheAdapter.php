@@ -65,7 +65,7 @@ final class Psr6CacheAdapter implements CacheItemPoolInterface
     public function deleteItems(array $keys): bool
     {
         foreach ($keys as $key) {
-            if (! $this->deleteItem($this->hash($key))) {
+            if (! $this->deleteItem($key)) {
                 return false;
             }
         }
