@@ -9,7 +9,7 @@ declare(strict_types=1);
  * LICENSE.txt file that was distributed with this source code.
  */
 
-use Ssch\T3Messenger\Cache\Psr6CacheAdapter;
+use Ssch\Cache\Adapter\Psr6Adapter;
 use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerProviderPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
@@ -113,8 +113,8 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->factory([service(CacheManager::class), 'getCache'])
         ->args(['t3_messenger']);
 
-    $services->set(Psr6CacheAdapter::class)->args([service('cache.messenger')]);
-    $services->alias('cache.messenger.restart_workers_signal', Psr6CacheAdapter::class);
+    $services->set(Psr6Adapter::class)->args([service('cache.messenger')]);
+    $services->alias('cache.messenger.restart_workers_signal', Psr6Adapter::class);
 
     $services
         ->alias('messenger.default_serializer', 'messenger.transport.native_php_serializer')
