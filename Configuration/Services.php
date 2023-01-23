@@ -10,7 +10,6 @@ declare(strict_types=1);
  */
 
 use Psr\Cache\CacheItemPoolInterface;
-use Ssch\Cache\Adapter\Psr6Adapter;
 use Ssch\Cache\Factory\Psr6Factory;
 use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerProviderPass;
@@ -74,8 +73,6 @@ use Symfony\Component\Messenger\Transport\TransportFactory;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Routing\RequestContextAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
-use TYPO3\CMS\Core\Cache\CacheManager;
-use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DependencyInjection\ConsoleCommandPass;
 use TYPO3\CMS\Core\Package\PackageManager;
 
@@ -113,8 +110,8 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $services->set('event_dispatcher', EventDispatcher::class);
 
     $services->set('cache.messenger', CacheItemPoolInterface::class)
-             ->factory([service(Psr6Factory::class), 'create'])
-             ->args(['t3_messenger']);
+        ->factory([service(Psr6Factory::class), 'create'])
+        ->args(['t3_messenger']);
     $services->alias('cache.messenger.restart_workers_signal', 'cache.messenger');
 
     $services
