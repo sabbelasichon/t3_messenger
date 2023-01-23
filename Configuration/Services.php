@@ -9,7 +9,9 @@ declare(strict_types=1);
  * LICENSE.txt file that was distributed with this source code.
  */
 
+use Psr\Cache\CacheItemPoolInterface;
 use Ssch\Cache\Adapter\Psr6Adapter;
+use Ssch\Cache\Factory\Psr6Factory;
 use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerProviderPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
@@ -109,12 +111,11 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->class(RequestContextAwareInterface::class)
         ->factory([service(RequestContextAwareFactory::class), 'create']);
     $services->set('event_dispatcher', EventDispatcher::class);
-    $services->set('cache.messenger', FrontendInterface::class)
-        ->factory([service(CacheManager::class), 'getCache'])
-        ->args(['t3_messenger']);
 
-    $services->set(Psr6Adapter::class)->args([service('cache.messenger')]);
-    $services->alias('cache.messenger.restart_workers_signal', Psr6Adapter::class);
+    $services->set('cache.messenger', CacheItemPoolInterface::class)
+             ->factory([service(Psr6Factory::class), 'create'])
+             ->args(['t3_messenger']);
+    $services->alias('cache.messenger.restart_workers_signal', 'cache.messenger');
 
     $services
         ->alias('messenger.default_serializer', 'messenger.transport.native_php_serializer')
