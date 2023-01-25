@@ -47,7 +47,7 @@ final class MessengerProvider extends AbstractProvider
     private function commandToHandlerMapping(): array
     {
         $commandToHandlerMapping = [];
-        
+
         foreach ($this->mapping as $bus => $handlersByMessage) {
             $messages = [];
             foreach ($handlersByMessage as $message => $handlers) {
