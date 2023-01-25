@@ -47,7 +47,7 @@ final class MessengerProvider extends AbstractProvider
     private function commandToHandlerMapping(): array
     {
         $commandToHandlerMapping = [];
-        #\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($this->mapping);exit;
+        
         foreach ($this->mapping as $bus => $handlersByMessage) {
             $messages = [];
             foreach ($handlersByMessage as $message => $handlers) {
