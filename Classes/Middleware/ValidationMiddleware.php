@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Ssch\T3Messenger\Middleware;
 
 use Ssch\T3Messenger\Exception\ValidationFailedException;
+use Symfony\Component\Mailer\Messenger\SendEmailMessage;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
@@ -29,6 +30,12 @@ final class ValidationMiddleware implements MiddlewareInterface
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
         $message = $envelope->getMessage();
+
+        // Special case. We cannot do much about it, because the validation middleware can´t validate that type of message here
+        if ($message instanceof SendEmailMessage) {
+            return $stack->next()
+                ->handle($envelope, $stack);
+        }
 
         $validator = $this->validatorResolver->getBaseValidatorConjunction(\get_class($message));
 

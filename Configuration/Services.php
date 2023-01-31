@@ -16,6 +16,7 @@ use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerProviderPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
 use Ssch\T3Messenger\EventSubscriber\ExtbaseClearPersistenceStateWorkerSubscriber;
+use Ssch\T3Messenger\Mailer\MessengerMailer;
 use Ssch\T3Messenger\Middleware\ValidationMiddleware;
 use Ssch\T3Messenger\Routing\RequestContextAwareFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
@@ -31,6 +32,10 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Mailer\EventListener\MessageLoggerListener;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\Messenger\MessageHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Bridge\AmazonSqs\Transport\AmazonSqsTransportFactory;
 use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpTransportFactory;
@@ -54,6 +59,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnSigtermSignalListener;
 use Symfony\Component\Messenger\Handler\BatchHandlerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Middleware\AddBusNameStampMiddleware;
 use Symfony\Component\Messenger\Middleware\DispatchAfterCurrentBusMiddleware;
 use Symfony\Component\Messenger\Middleware\FailedMessageProcessingMiddleware;
@@ -72,6 +78,7 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\Sync\SyncTransportFactory;
 use Symfony\Component\Messenger\Transport\TransportFactory;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
+use Symfony\Component\Messenger\Transport\TransportInterface;
 use Symfony\Component\Routing\RequestContextAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use TYPO3\CMS\Core\DependencyInjection\ConsoleCommandPass;
@@ -103,6 +110,29 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
                 'after' => 'mfaProviders',
             ]
         );
+
+    // Mailer
+    $services->set('messenger.mailer.transport', TransportInterface::class)
+        ->factory([service(\Ssch\T3Messenger\Mailer\TransportFactory::class), 'get']);
+    $services->set(MessageHandler::class)
+        ->arg('$transport', service('messenger.mailer.transport'))
+        ->tag('messenger.message_handler');
+    $services->set(Mailer::class)
+        ->args(
+            [
+                service('messenger.mailer.transport'),
+                service(MessageBusInterface::class),
+                service('event_dispatcher'),
+            ]
+        );
+    $services->set(MessengerMailer::class)
+        ->decorate(Mailer::class, MessengerMailer::class . '.symfony')
+        ->args([service(MessengerMailer::class . '.symfony')])
+        ->public();
+
+    $services->alias(MailerInterface::class, MessengerMailer::class);
+    $services->set('mailer.logger_message_listener', MessageLoggerListener::class)
+        ->tag('kernel.event_subscriber');
 
     $services->set(HttpFoundationFactory::class);
     $services->set('router')
