@@ -6,6 +6,11 @@ parameters:
 			path: Classes/DependencyInjection/Compiler/T3MessengerPass.php
 
 		-
+			message: "#^Call to function method_exists\\(\\) with Symfony\\\\Component\\\\EventDispatcher\\\\DependencyInjection\\\\RegisterListenersPass and 'setNoPreloadEvents' will always evaluate to true\\.$#"
+			count: 1
+			path: Configuration/Services.php
+
+		-
 			message: "#^Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\AmazonSqs\\\\Transport\\\\AmazonSqsTransportFactory not found\\.$#"
 			count: 1
 			path: Configuration/Services.php
