@@ -13,6 +13,7 @@ namespace Ssch\T3Messenger\Transport;
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Types\Type;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\Connection;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\DoctrineTransport;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\PostgreSqlConnection;
@@ -21,6 +22,8 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Database\Schema\Types\EnumType;
+use TYPO3\CMS\Core\Database\Schema\Types\SetType;
 
 final class DoctrineTransportFactory implements TransportFactoryInterface
 {
@@ -28,6 +31,11 @@ final class DoctrineTransportFactory implements TransportFactoryInterface
      * @var \Doctrine\DBAL\Connection[]
      */
     private static array $connections = [];
+
+    private array $customDoctrineTypes = [
+        EnumType::TYPE => EnumType::class,
+        SetType::TYPE => SetType::class,
+    ];
 
     /**
      * @param array<mixed> $options
@@ -92,7 +100,22 @@ final class DoctrineTransportFactory implements TransportFactoryInterface
             unset($connectionParams['wrapperClass']);
         }
 
-        self::$connections[$connectionName] = DriverManager::getConnection($connectionParams);
+        $connection = DriverManager::getConnection($connectionParams);
+
+        // Register custom data types
+        foreach ($this->customDoctrineTypes as $type => $className) {
+            if (! Type::hasType($type)) {
+                Type::addType($type, $className);
+            }
+        }
+
+        // Register all custom data types in the type mapping
+        foreach ($this->customDoctrineTypes as $type => $className) {
+            $connection->getDatabasePlatform()
+                ->registerDoctrineTypeMapping($type, $type);
+        }
+
+        self::$connections[$connectionName] = $connection;
 
         return self::$connections[$connectionName];
     }

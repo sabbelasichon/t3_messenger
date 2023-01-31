@@ -322,7 +322,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
 
     // Compiler passes
     $registerListenersPass = new RegisterListenersPass();
-    if (class_exists(ConsoleEvents::class)) {
+    if (class_exists(ConsoleEvents::class) && method_exists($registerListenersPass, 'setNoPreloadEvents')) {
         $registerListenersPass->setNoPreloadEvents([
             ConsoleEvents::COMMAND,
             ConsoleEvents::TERMINATE,
