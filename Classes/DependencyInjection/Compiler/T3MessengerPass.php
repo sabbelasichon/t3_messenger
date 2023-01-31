@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\DependencyInjection\Compiler;
 
+use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationCollector;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
 use Symfony\Component\DependencyInjection\ChildDefinition;
@@ -37,6 +38,7 @@ use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Lowlevel\ConfigurationModuleProvider\AbstractProvider;
 
 final class T3MessengerPass implements CompilerPassInterface
 {
@@ -81,6 +83,10 @@ final class T3MessengerPass implements CompilerPassInterface
         if (class_exists(BeanstalkdTransportFactory::class)) {
             $container->getDefinition('messenger.transport.beanstalkd.factory')
                 ->addTag('messenger.transport_factory');
+        }
+
+        if (! class_exists(AbstractProvider::class)) {
+            $container->removeDefinition(MessengerProvider::class);
         }
 
         if ($config['default_bus'] === null && \count($config['buses']) === 1) {
