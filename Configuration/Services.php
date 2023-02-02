@@ -30,6 +30,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Bridge\AmazonSqs\Transport\AmazonSqsTransportFactory;
 use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpTransportFactory;
@@ -319,6 +320,9 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
 
     $containerBuilder->registerForAutoconfiguration(BatchHandlerInterface::class)
         ->addTag('messenger.message_handler');
+
+    $containerBuilder->registerForAutoconfiguration(EventSubscriberInterface::class)
+        ->addTag('kernel.event_subscriber');
 
     // Compiler passes
     $registerListenersPass = new RegisterListenersPass();
