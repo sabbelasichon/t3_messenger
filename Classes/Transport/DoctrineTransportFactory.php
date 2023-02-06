@@ -62,7 +62,10 @@ final class DoctrineTransportFactory implements TransportFactoryInterface
             ), 0, $e);
         }
 
-        return new DoctrineTransport($connection, $serializer);
+        return new DoctrineTransportWrapper(new DoctrineTransport(
+            $connection,
+            $serializer
+        ), $connection->getConfiguration(), $driverConnection);
     }
 
     /**

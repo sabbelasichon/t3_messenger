@@ -12,9 +12,11 @@ declare(strict_types=1);
 use Psr\Cache\CacheItemPoolInterface;
 use Ssch\Cache\Factory\Psr6Factory;
 use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
+use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerAlterTableListenerPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerProviderPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
+use Ssch\T3Messenger\EventListener\AlterTableDefinitionStatementsEventListener;
 use Ssch\T3Messenger\EventSubscriber\ExtbaseClearPersistenceStateWorkerSubscriber;
 use Ssch\T3Messenger\Mailer\MailValidityResolver;
 use Ssch\T3Messenger\Mailer\MessengerMailer;
@@ -84,6 +86,7 @@ use Symfony\Component\Messenger\Transport\TransportInterface;
 use Symfony\Component\Mime\BodyRendererInterface;
 use Symfony\Component\Routing\RequestContextAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent;
 use TYPO3\CMS\Core\DependencyInjection\ConsoleCommandPass;
 use TYPO3\CMS\Core\Package\PackageManager;
 
@@ -98,6 +101,14 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->exclude([__DIR__ . '/../Classes/Command', __DIR__ . '/../Classes/DependencyInjection']);
 
     $services->set(MessengerConfigurationResolver::class);
+
+    // Schema Filter
+    $services->set(AlterTableDefinitionStatementsEventListener::class)
+        ->args([service('messenger.receiver_locator'), []])
+        ->tag('event.listener', [
+            'event' => AlterTableDefinitionStatementsEvent::class,
+        ]);
+
     // Lowlevel Configuration Provider
     $services->set(MessengerProvider::class)
         ->args([
@@ -376,4 +387,5 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $containerBuilder->addCompilerPass(new MessengerPass());
     $containerBuilder->addCompilerPass(new ConsoleCommandPass('console.command'));
     $containerBuilder->addCompilerPass(new MessengerProviderPass());
+    $containerBuilder->addCompilerPass(new MessengerAlterTableListenerPass());
 };
