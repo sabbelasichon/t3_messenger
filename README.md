@@ -101,6 +101,23 @@ return [
 
 **Note**: The id validation is a shortcut for the service id **messenger.middleware.validation**.
 
+## Async Mailer
+The extension ships with a Decorator for the Symfony MailerInterface in order to send emails asynchronously if it is desired. 
+In order to do so you have to configure the routing section in your Messenger.php
+
+```php
+return [
+    'routing' => [
+        \Symfony\Component\Mailer\Messenger\SendEmailMessage::class => ['senders' => ['async']],
+    ]
+]
+```
+Also have a look for at the Symfony Documentation [Sending Messages Async](https://symfony.com/doc/current/mailer.html#sending-messages-async).
+
+**Note**:
+Be aware that you should inject the \Symfony\Component\Mailer\MailerInterface in your classes and explicitly pass your MailMessage to the send method.
+Do not call the send method on the MailMessage object itself because this will bypass the shipped decorator and you cannot send your email messages asynchronously 
+
 ## ConfigurationProvider
 
 If you have installed **typo3/cms-lowlevel** you can see your Messenger configuration within the Configuration module under the section **Messenger Configuration**
