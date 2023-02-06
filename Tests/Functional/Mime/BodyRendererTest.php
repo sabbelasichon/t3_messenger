@@ -9,16 +9,16 @@ declare(strict_types=1);
  * LICENSE.txt file that was distributed with this source code.
  */
 
-namespace Ssch\T3Messenger\Tests\Functional\Mailer;
+namespace Ssch\T3Messenger\Tests\Functional\Mime;
 
 use Ssch\T3Messenger\Tests\Functional\Helper\MailerAssertionsTrait;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
-use TYPO3\CMS\Core\Mail\MailMessage;
+use Symfony\Component\Mime\BodyRendererInterface;
+use TYPO3\CMS\Core\Mail\FluidEmail;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
-final class MessengerMailerTest extends FunctionalTestCase
+final class BodyRendererTest extends FunctionalTestCase
 {
     use MailerAssertionsTrait;
 
@@ -40,27 +40,27 @@ final class MessengerMailerTest extends FunctionalTestCase
         ],
     ];
 
-    private MailerInterface $subject;
+    private BodyRendererInterface $subject;
+
+    private MailerInterface $mailer;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->subject = $this->get(MailerInterface::class);
+        $this->subject = $this->get(BodyRendererInterface::class);
+        $this->mailer = $this->get(MailerInterface::class);
     }
 
-    public function testThatEmailIstSentViaMessenger(): void
+    public function testThatFluidEmailContentIsRendered(): void
     {
-        $mailMessage = GeneralUtility::makeInstance(MailMessage::class);
-        $mailMessage
+        $fluidEmail = GeneralUtility::makeInstance(FluidEmail::class);
+        $fluidEmail
             ->subject('Test')
-            ->text('Hello World')
             ->to('info@test.de');
 
-        $this->subject->send($mailMessage);
-        self::assertEquals([new Address('info@mustermann.com', 'Mustermann AG')], $mailMessage->getFrom());
-        self::assertEquals([new Address('info@mustermann.com', 'Mustermann AG')], $mailMessage->getReplyTo());
-
+        $this->subject->render($fluidEmail);
+        $this->mailer->send($fluidEmail);
         $this->assertQueuedEmailCount(1, 'null://');
-        $this->assertEmailHasHeader($mailMessage, 'X-Mailer');
+        $this->assertEmailHtmlBodyContains($fluidEmail, 'This email was sent by');
     }
 }

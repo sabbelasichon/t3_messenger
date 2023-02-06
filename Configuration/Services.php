@@ -16,8 +16,10 @@ use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerProviderPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
 use Ssch\T3Messenger\EventSubscriber\ExtbaseClearPersistenceStateWorkerSubscriber;
+use Ssch\T3Messenger\Mailer\MailValidityResolver;
 use Ssch\T3Messenger\Mailer\MessengerMailer;
 use Ssch\T3Messenger\Middleware\ValidationMiddleware;
+use Ssch\T3Messenger\Mime\BodyRenderer;
 use Ssch\T3Messenger\Routing\RequestContextAwareFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\Console\ConsoleEvents;
@@ -79,6 +81,7 @@ use Symfony\Component\Messenger\Transport\Sync\SyncTransportFactory;
 use Symfony\Component\Messenger\Transport\TransportFactory;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
+use Symfony\Component\Mime\BodyRendererInterface;
 use Symfony\Component\Routing\RequestContextAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use TYPO3\CMS\Core\DependencyInjection\ConsoleCommandPass;
@@ -112,6 +115,8 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         );
 
     // Mailer
+    $services->set(BodyRenderer::class)->public();
+    $services->alias(BodyRendererInterface::class, BodyRenderer::class);
     $services->set('messenger.mailer.transport', TransportInterface::class)
         ->factory([service(\Ssch\T3Messenger\Mailer\TransportFactory::class), 'get']);
     $services->set(MessageHandler::class)
@@ -127,7 +132,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         );
     $services->set(MessengerMailer::class)
         ->decorate(Mailer::class, MessengerMailer::class . '.symfony')
-        ->args([service(MessengerMailer::class . '.symfony')])
+        ->args([service(MessengerMailer::class . '.symfony'), service(MailValidityResolver::class)])
         ->public();
 
     $services->alias(MailerInterface::class, MessengerMailer::class);
