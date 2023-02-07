@@ -13,7 +13,7 @@ namespace Ssch\T3Messenger\Mailer;
 
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
-final class TransportFactory
+final class RealTransportFactory
 {
     private \TYPO3\CMS\Core\Mail\TransportFactory $transportFactory;
 
@@ -25,6 +25,8 @@ final class TransportFactory
     public function get(): TransportInterface
     {
         $mailSettings = (array) $GLOBALS['TYPO3_CONF_VARS']['MAIL'];
+        unset($mailSettings['transport_spool_type']);
+
         return $this->transportFactory->get($mailSettings);
     }
 }
