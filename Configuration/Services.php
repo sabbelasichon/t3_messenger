@@ -10,9 +10,11 @@ declare(strict_types=1);
  */
 
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Ssch\Cache\Factory\Psr6Factory;
 use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerAlterTableListenerPass;
+use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerMailerPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerProviderPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
@@ -38,7 +40,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Mailer\EventListener\MessageLoggerListener;
 use Symfony\Component\Mailer\Mailer;
-use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\MailerInterface as SymfonyMailerInterface;
 use Symfony\Component\Mailer\Messenger\MessageHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Bridge\AmazonSqs\Transport\AmazonSqsTransportFactory;
@@ -91,6 +93,27 @@ use TYPO3\CMS\Core\DependencyInjection\ConsoleCommandPass;
 use TYPO3\CMS\Core\Package\PackageManager;
 
 return static function (ContainerConfigurator $containerConfigurator, ContainerBuilder $containerBuilder): void {
+    if (! class_exists(\TYPO3\CMS\Core\Mail\Event\AfterMailerSentMessageEvent::class, false)) {
+        class_alias(
+            \Ssch\T3Messenger\Mailer\Event\AfterMailerSentMessageEvent::class,
+            \TYPO3\CMS\Core\Mail\Event\AfterMailerSentMessageEvent::class
+        );
+    }
+
+    if (! class_exists(\TYPO3\CMS\Core\Mail\Event\BeforeMailerSentMessageEvent::class, false)) {
+        class_alias(
+            \Ssch\T3Messenger\Mailer\Event\BeforeMailerSentMessageEvent::class,
+            \TYPO3\CMS\Core\Mail\Event\BeforeMailerSentMessageEvent::class
+        );
+    }
+
+    if (! interface_exists(\TYPO3\CMS\Core\Mail\MailerInterface::class, false)) {
+        class_alias(
+            \Ssch\T3Messenger\Mailer\Contract\MailerInterface::class,
+            \TYPO3\CMS\Core\Mail\MailerInterface::class
+        );
+    }
+
     $services = $containerConfigurator->services();
     $services->defaults()
         ->private()
@@ -128,6 +151,8 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     // Mailer
     $services->set(BodyRenderer::class)->public();
     $services->alias(BodyRendererInterface::class, BodyRenderer::class);
+    $services->set('messenger.mailer.real_transport', TransportInterface::class)
+        ->factory([service(\Ssch\T3Messenger\Mailer\RealTransportFactory::class), 'get']);
     $services->set('messenger.mailer.transport', TransportInterface::class)
         ->factory([service(\Ssch\T3Messenger\Mailer\TransportFactory::class), 'get']);
     $services->set(MessageHandler::class)
@@ -136,17 +161,26 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $services->set(Mailer::class)
         ->args(
             [
-                service('messenger.mailer.transport'),
+                service('messenger.mailer.real_transport'),
                 service(MessageBusInterface::class),
                 service('event_dispatcher'),
             ]
         );
     $services->set(MessengerMailer::class)
         ->decorate(Mailer::class, MessengerMailer::class . '.symfony')
-        ->args([service(MessengerMailer::class . '.symfony'), service(MailValidityResolver::class)])
+        ->args(
+            [
+                service(MessengerMailer::class . '.symfony'),
+                service(MailValidityResolver::class),
+                service(EventDispatcherInterface::class),
+                service('messenger.mailer.real_transport'),
+                service('messenger.mailer.transport'),
+            ]
+        )
         ->public();
 
-    $services->alias(MailerInterface::class, MessengerMailer::class);
+    $services->alias(SymfonyMailerInterface::class, MessengerMailer::class);
+    $services->alias(\TYPO3\CMS\Core\Mail\MailerInterface::class, MessengerMailer::class);
     $services->set('mailer.logger_message_listener', MessageLoggerListener::class)
         ->tag('kernel.event_subscriber');
 
@@ -383,6 +417,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     // must be registered before removing private services as some might be listeners/subscribers
     // but as late as possible to get resolved parameters
     $containerBuilder->addCompilerPass($registerListenersPass, PassConfig::TYPE_BEFORE_REMOVING);
+    $containerBuilder->addCompilerPass(new MessengerMailerPass('event.listener'));
     $containerBuilder->addCompilerPass(new T3MessengerPass(new MessengerConfigurationResolver()));
     $containerBuilder->addCompilerPass(new MessengerPass());
     $containerBuilder->addCompilerPass(new ConsoleCommandPass('console.command'));

@@ -6,6 +6,16 @@ parameters:
 			path: Classes/DependencyInjection/Compiler/T3MessengerPass.php
 
 		-
+			message: "#^Parameter \\#1 \\$mailer of class Ssch\\\\T3Messenger\\\\Mailer\\\\Event\\\\AfterMailerSentMessageEvent constructor expects Ssch\\\\T3Messenger\\\\Mailer\\\\Contract\\\\MailerInterface, \\$this\\(Ssch\\\\T3Messenger\\\\Mailer\\\\MessengerMailer\\) given\\.$#"
+			count: 1
+			path: Classes/Mailer/MessengerMailer.php
+
+		-
+			message: "#^Parameter \\#1 \\$mailer of class Ssch\\\\T3Messenger\\\\Mailer\\\\Event\\\\BeforeMailerSentMessageEvent constructor expects Ssch\\\\T3Messenger\\\\Mailer\\\\Contract\\\\MailerInterface, \\$this\\(Ssch\\\\T3Messenger\\\\Mailer\\\\MessengerMailer\\) given\\.$#"
+			count: 1
+			path: Classes/Mailer/MessengerMailer.php
+
+		-
 			message: "#^Call to function method_exists\\(\\) with Symfony\\\\Component\\\\EventDispatcher\\\\DependencyInjection\\\\RegisterListenersPass and 'setNoPreloadEvents' will always evaluate to true\\.$#"
 			count: 1
 			path: Configuration/Services.php
