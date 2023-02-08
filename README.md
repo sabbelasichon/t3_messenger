@@ -126,3 +126,4 @@ You cannot only see your System wide configuration but also your Messages and th
 
 ## Further reading
 [Batch processing with Messenger](https://wolfgang-klinger.medium.com/how-to-handle-messages-in-batches-with-symfony-messenger-c91b5aa1c8b1)
+[Symfony Messenger without Supervisor](https://dev.to/fadymr/use-symfony-messenger-without-supervisor-3cl6)
