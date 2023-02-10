@@ -158,19 +158,11 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $services->set(MessageHandler::class)
         ->arg('$transport', service('messenger.mailer.transport'))
         ->tag('messenger.message_handler');
-    $services->set(Mailer::class)
-        ->args(
-            [
-                service('messenger.mailer.real_transport'),
-                service(MessageBusInterface::class),
-                service('event_dispatcher'),
-            ]
-        );
+
     $services->set(MessengerMailer::class)
-        ->decorate(Mailer::class, MessengerMailer::class . '.symfony')
         ->args(
             [
-                service(MessengerMailer::class . '.symfony'),
+                service(MessageBusInterface::class),
                 service(MailValidityResolver::class),
                 service(EventDispatcherInterface::class),
                 service('messenger.mailer.real_transport'),
@@ -182,7 +174,9 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $services->alias(SymfonyMailerInterface::class, MessengerMailer::class);
     $services->alias(\TYPO3\CMS\Core\Mail\MailerInterface::class, MessengerMailer::class);
     $services->set('mailer.logger_message_listener', MessageLoggerListener::class)
-        ->tag('kernel.event_subscriber');
+        ->tag('event.listener', [
+            'method' => 'onMessage',
+        ]);
 
     $services->set(HttpFoundationFactory::class);
     $services->set('router')
