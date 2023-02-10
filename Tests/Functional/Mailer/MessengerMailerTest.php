@@ -12,8 +12,9 @@ declare(strict_types=1);
 namespace Ssch\T3Messenger\Tests\Functional\Mailer;
 
 use Ssch\T3Messenger\Tests\Functional\Helper\MailerAssertionsTrait;
-use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mime\Address;
+use TYPO3\CMS\Core\Mail\MailerInterface;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
@@ -57,11 +58,13 @@ final class MessengerMailerTest extends FunctionalTestCase
             ->to('info@test.de');
 
         $this->subject->send($mailMessage);
+        self::assertInstanceOf(SentMessage::class, $this->subject->getSentMessage());
         self::assertEquals([new Address('info@mustermann.com', 'Mustermann AG')], $mailMessage->getFrom());
         self::assertEquals([new Address('info@mustermann.com', 'Mustermann AG')], $mailMessage->getReplyTo());
 
         $this->assertQueuedEmailCount(1, 'null://');
         $this->assertEmailHasHeader($mailMessage, 'X-Mailer');
         self::assertSame($mailMessage->getSubject(), 'This is modified by an event');
+        self::assertEquals($mailMessage, $this->subject->getSentMessage()->getOriginalMessage());
     }
 }

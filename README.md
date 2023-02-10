@@ -102,9 +102,38 @@ return [
 **Note**: The id validation is a shortcut for the service id **messenger.middleware.validation**.
 
 ## Async Mailer
-The extension ships with a Decorator for the Symfony MailerInterface in order to send emails asynchronously if it is desired. 
-In order to do so you have to configure the routing section in your Messenger.php
+The extension ships with a custom MessengerMailer which implements [MailerInterface](https://github.com/TYPO3/typo3/blob/main/typo3/sysext/core/Classes/Mail/MailerInterface.php) from TYPO3 core in order to send emails asynchronously if it is desired.
+Even if you are using TYPO3 10 you can already use the new MailerInterface.
+Inject the MailerInterface wherever you want:
 
+```php
+
+use TYPO3\CMS\Core\Mail\MailerInterface;
+use TYPO3\CMS\Core\Mail\MailMessage;use TYPO3\CMS\Core\Utility\GeneralUtility;
+
+final class RegistrationService
+{
+    private MailerInterface $mailer;
+
+    public function __construct(MailerInterface $mailer)
+    {
+        $this->mailer = $mailer;
+    }
+
+    public function register()
+    {
+        $mailMessage = GeneralUtility::makeInstance(MailMessage::class);
+        $mailMessage->setTo('max.mustermann@domain.com');
+        $mailMessage->setSubject('You MailerInterface');
+        $this->mailer->send($mailMessage);
+    }
+}
+```
+
+If you are sending emails this way, nothing should change. The mails will be sent the way before via the MessengerBus.
+You could also inject the MailerInterface from Symfony Mailer and you will the MessengerMailer injected.
+
+If you truly want to send emails asynchronously you have to configure the routing section in your Messenger.php
 ```php
 return [
     'routing' => [
@@ -112,11 +141,13 @@ return [
     ]
 ]
 ```
+
+Nothing comes for free. There are some caveats to tackle if you are sending emails asynchronously.
 Also have a look for at the Symfony Documentation [Sending Messages Async](https://symfony.com/doc/current/mailer.html#sending-messages-async).
 
 **Note**:
 Be aware that you should inject the \Symfony\Component\Mailer\MailerInterface in your classes and explicitly pass your MailMessage to the send method.
-Do not call the send method on the MailMessage object itself because this will bypass the shipped decorator and you cannot send your email messages asynchronously 
+Do not call the send method on the MailMessage object itself because this will bypass the shipped decorator and you cannot send your email messages asynchronously
 
 ## ConfigurationProvider
 
