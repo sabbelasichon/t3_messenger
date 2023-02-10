@@ -147,7 +147,7 @@ Nothing comes for free. There are some caveats to tackle if you are sending emai
 Also have a look for at the Symfony Documentation [Sending Messages Async](https://symfony.com/doc/current/mailer.html#sending-messages-async).
 
 **Note**:
-Be aware that you should inject the \Symfony\Component\Mailer\MailerInterface in your classes and explicitly pass your MailMessage to the send method.
+Be aware that you should inject the either the \TYPO3\CMS\Core\Mail\MailerInterface or the \Symfony\Component\Mailer\MailerInterface in your classes and explicitly pass your MailMessage to the send method.
 Do not call the send method on the MailMessage object itself because this will bypass the shipped decorator and you cannot send your email messages asynchronously
 
 ## ConfigurationProvider
