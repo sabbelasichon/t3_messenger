@@ -23,7 +23,6 @@
     "symfony/options-resolver": "^5.0 || ^6.2",
     "symfony/doctrine-messenger": "^5.0 || ^6.2",
     "psr/cache": "^1.0",
-    "symfony/psr-http-message-bridge": "^2.1",
     "ssch/typo3-psr-cache-adapter": "^1.1"
   },
   "require-dev": {

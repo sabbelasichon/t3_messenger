@@ -25,8 +25,6 @@ use Ssch\T3Messenger\Mailer\MessengerMailer;
 use Ssch\T3Messenger\Middleware\LoggingMiddleware;
 use Ssch\T3Messenger\Middleware\ValidationMiddleware;
 use Ssch\T3Messenger\Mime\BodyRenderer;
-use Ssch\T3Messenger\Routing\RequestContextAwareFactory;
-use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -87,7 +85,6 @@ use Symfony\Component\Messenger\Transport\TransportFactory;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 use Symfony\Component\Mime\BodyRendererInterface;
-use Symfony\Component\Routing\RequestContextAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent;
 use TYPO3\CMS\Core\DependencyInjection\ConsoleCommandPass;
@@ -179,10 +176,6 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             'method' => 'onMessage',
         ]);
 
-    $services->set(HttpFoundationFactory::class);
-    $services->set('router')
-        ->class(RequestContextAwareInterface::class)
-        ->factory([service(RequestContextAwareFactory::class), 'create']);
     $services->set('event_dispatcher', EventDispatcher::class);
 
     $services->set('cache.messenger', CacheItemPoolInterface::class)
