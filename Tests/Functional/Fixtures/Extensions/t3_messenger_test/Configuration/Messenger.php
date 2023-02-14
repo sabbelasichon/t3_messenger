@@ -44,8 +44,8 @@ return [
                 'logging' => [
                     'id' => 'logging',
                 ],
-                'router_context' => [
-                    'id' => 'router_context',
+                'server_request_context' => [
+                    'id' => 'server_request_context',
                 ],
             ],
         ],
