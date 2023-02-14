@@ -41,6 +41,9 @@ return [
                 'validation' => [
                     'id' => 'validation',
                 ],
+                'logging' => [
+                    'id' => 'logging',
+                ],
                 'router_context' => [
                     'id' => 'router_context',
                 ],
