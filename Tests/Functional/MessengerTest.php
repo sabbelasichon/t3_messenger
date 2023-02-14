@@ -12,13 +12,13 @@ declare(strict_types=1);
 namespace Ssch\T3Messenger\Tests\Functional;
 
 use Ssch\T3Messenger\Exception\ValidationFailedException;
+use Ssch\T3Messenger\Stamp\SiteStamp;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyCommand;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyFailingCommand;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyOtherCommand;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Service\MyService;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnFailureLimitListener;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
-use Symfony\Component\Messenger\Stamp\RouterContextStamp;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 use Symfony\Component\Messenger\Worker;
 use TYPO3\CMS\Core\Http\Uri;
@@ -101,19 +101,19 @@ final class MessengerTest extends FunctionalTestCase
         self::assertCount(1, $transport->get());
     }
 
-    public function testThatRouterContextMiddlewareIsDefinedCorrectly(): void
+    public function testThatServerRequestContextMiddlewareIsDefinedCorrectly(): void
     {
         $uri = new Uri($this->site->getBase()->__toString() . '/');
 
-        $response = $this->executeFrontendRequest(new InternalRequest($uri->__toString()));
+        $this->executeFrontendRequest(new InternalRequest($uri->__toString()));
 
         /** @var TransportInterface $transport */
         $transport = $this->get('messenger.transport.async');
         $envelopes = $transport->get();
-        $routerContextStamp = $envelopes[0]->last(RouterContextStamp::class);
+        $siteStamp = $envelopes[0]->last(SiteStamp::class);
 
         self::assertCount(1, $envelopes);
-        self::assertInstanceOf(RouterContextStamp::class, $routerContextStamp);
-        self::assertSame($routerContextStamp->getHost(), $this->site->getBase()->getHost());
+        self::assertInstanceOf(SiteStamp::class, $siteStamp);
+        self::assertSame($siteStamp->getSiteUid(), $this->site->getRootPageId());
     }
 }
