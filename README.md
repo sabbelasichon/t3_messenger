@@ -91,7 +91,6 @@ return [
     'buses' => [
         'messenger.bus.default' => [
             'middleware' => [
-            'middleware' => [
                 'id' => 'validation',
             ],
         ],
@@ -100,6 +99,20 @@ return [
 ```
 
 **Note**: The id validation is a shortcut for the service id **messenger.middleware.validation**.
+
+Additionally, the extension ships with a LoggingMiddleware for debugging purposes.
+
+```php
+return [
+    'buses' => [
+        'messenger.bus.default' => [
+            'middleware' => [
+                'id' => 'logging',
+            ],
+        ],
+    ],
+];
+```
 
 ## Async Mailer
 The extension ships with a custom MessengerMailer which implements [MailerInterface](https://github.com/TYPO3/typo3/blob/main/typo3/sysext/core/Classes/Mail/MailerInterface.php) from TYPO3 core in order to send emails asynchronously if it is desired.

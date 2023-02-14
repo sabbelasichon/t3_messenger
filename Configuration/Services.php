@@ -22,6 +22,7 @@ use Ssch\T3Messenger\EventListener\AlterTableDefinitionStatementsEventListener;
 use Ssch\T3Messenger\EventSubscriber\ExtbaseClearPersistenceStateWorkerSubscriber;
 use Ssch\T3Messenger\Mailer\MailValidityResolver;
 use Ssch\T3Messenger\Mailer\MessengerMailer;
+use Ssch\T3Messenger\Middleware\LoggingMiddleware;
 use Ssch\T3Messenger\Middleware\ValidationMiddleware;
 use Ssch\T3Messenger\Mime\BodyRenderer;
 use Ssch\T3Messenger\Routing\RequestContextAwareFactory;
@@ -215,6 +216,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->set('messenger.middleware.reject_redelivered_message_middleware', RejectRedeliveredMessageMiddleware::class)
         ->set('messenger.middleware.failed_message_processing_middleware', FailedMessageProcessingMiddleware::class)
         ->set('messenger.middleware.validation', ValidationMiddleware::class)
+        ->set('messenger.middleware.logging', LoggingMiddleware::class)
         ->set('messenger.middleware.router_context', RouterContextMiddleware::class)
         ->args([service('router')])
         ->abstract()
