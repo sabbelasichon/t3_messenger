@@ -26,13 +26,16 @@ return [
         'failed' => [
             'dsn' => 'typo3-db://Default?queue_name=failed',
         ],
+        'sync' => [
+            'dsn' => 'sync://',
+        ],
     ],
     'routing' => [
         MyCommand::class => [
-            'senders' => ['async'],
+            'senders' => ['sync'],
         ],
         MyFailingCommand::class => [
-            'senders' => ['async'],
+            'senders' => ['sync'],
         ],
     ],
     'buses' => [
