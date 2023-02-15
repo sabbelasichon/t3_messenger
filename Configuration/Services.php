@@ -118,8 +118,15 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->autowire()
         ->autoconfigure();
 
+    // Test configuration ignore
+    $containerConfigurator->import(__DIR__ . '/../Classes/Test/Configuration/Services.php', null, true);
+
     $services->load('Ssch\\T3Messenger\\', __DIR__ . '/../Classes/')
-        ->exclude([__DIR__ . '/../Classes/Command', __DIR__ . '/../Classes/DependencyInjection']);
+        ->exclude([
+            __DIR__ . '/../Classes/DependencyInjection',
+            __DIR__ . '/../Classes/Test/Configuration',
+            __DIR__ . '/../Classes/Test/Command',
+        ]);
 
     $services->set(MessengerConfigurationResolver::class);
 
@@ -219,6 +226,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         // Transports
         ->set('messenger.transport_factory', TransportFactory::class)
         ->args([tagged_iterator('messenger.transport_factory')])
+        ->autoconfigure(false)
         ->set('messenger.transport.amqp.factory', AmqpTransportFactory::class)
         ->set('messenger.transport.redis.factory', RedisTransportFactory::class)
         ->set('messenger.transport.sync.factory', SyncTransportFactory::class)

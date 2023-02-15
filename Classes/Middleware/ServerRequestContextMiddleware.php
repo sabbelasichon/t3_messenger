@@ -97,6 +97,6 @@ final class ServerRequestContextMiddleware implements MiddlewareInterface
 
     private function getRequest(): ?ServerRequestInterface
     {
-        return $GLOBALS['TYPO3_REQUEST'];
+        return $GLOBALS['TYPO3_REQUEST'] ?? null;
     }
 }
