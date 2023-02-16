@@ -38,6 +38,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Mailer\Event\MessageEvent;
 use Symfony\Component\Mailer\EventListener\MessageLoggerListener;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\MailerInterface as SymfonyMailerInterface;
@@ -181,6 +182,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $services->set('mailer.logger_message_listener', MessageLoggerListener::class)
         ->tag('event.listener', [
             'method' => 'onMessage',
+            'event' => MessageEvent::class,
         ]);
 
     $services->set('event_dispatcher', EventDispatcher::class);
