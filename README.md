@@ -145,7 +145,7 @@ final class RegistrationService
 ```
 
 If you are sending emails this way, nothing should change. The mails will be sent the way before via the MessengerBus.
-You could also inject the MailerInterface from Symfony Mailer and you will the MessengerMailer injected.
+You could also inject the MailerInterface from Symfony Mailer and you will get the MessengerMailer injected.
 
 If you truly want to send emails asynchronously you have to configure the routing section in your Messenger.php
 ```php
@@ -157,7 +157,7 @@ return [
 ```
 
 Nothing comes for free. There are some caveats to tackle if you are sending emails asynchronously.
-Also have a look for at the Symfony Documentation [Sending Messages Async](https://symfony.com/doc/current/mailer.html#sending-messages-async).
+Also have a look at the Symfony Documentation [Sending Messages Async](https://symfony.com/doc/current/mailer.html#sending-messages-async).
 
 **Note**:
 Be aware that you should inject the either the \TYPO3\CMS\Core\Mail\MailerInterface or the \Symfony\Component\Mailer\MailerInterface in your classes and explicitly pass your MailMessage to the send method.
