@@ -79,6 +79,10 @@ The transport will automatically create a table named messenger_messages.
 
 Please have a look for further configuration details at the [doctrine transport](https://symfony.com/doc/current/messenger.html#doctrine-transport).
 
+## Null Transport
+
+The extension ships also with a NullTransport. This is useful if you want some messages in some instances not to be handled at all.
+
 ## Middleware
 
 Have a look at the Symfony Documentation about [Middleware](https://symfony.com/doc/current/messenger.html#middleware) to understand the concept behind it.
