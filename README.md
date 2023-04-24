@@ -2,6 +2,9 @@
 Integrates Symfony Messenger into TYPO3
 [https://symfony.com/doc/current/components/messenger.html](https://symfony.com/doc/current/components/messenger.html)
 
+## Credits
+Many thanks to [Constructiva Solutions GmbH](https://www.constructiva.de/) that sponsored the development of this extension with a sponsorship and a lot of valuable feedback.
+
 ## Integration guide
 
 The extension basically provides the same functionality as if you would use the messenger in the Symfony Framework.
