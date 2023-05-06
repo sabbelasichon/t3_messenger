@@ -22,10 +22,7 @@ final class LoggingMiddleware implements MiddlewareInterface, LoggerAwareInterfa
 {
     use LoggerAwareTrait;
 
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+    protected ?LoggerInterface $logger = null;
 
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
