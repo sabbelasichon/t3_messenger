@@ -22,15 +22,15 @@ final class BodyRendererTest extends FunctionalTestCase
 {
     use MailerAssertionsTrait;
 
-    protected $initializeDatabase = false;
+    protected bool $initializeDatabase = false;
 
-    protected $testExtensionsToLoad = [
+    protected array $testExtensionsToLoad = [
         'typo3conf/ext/typo3_psr_cache_adapter',
         'typo3conf/ext/t3_messenger',
         'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/Extensions/t3_messenger_test',
     ];
 
-    protected $configurationToUseInTestInstance = [
+    protected array $configurationToUseInTestInstance = [
         'MAIL' => [
             'transport' => 'null',
             'defaultMailFromAddress' => 'info@mustermann.com',
