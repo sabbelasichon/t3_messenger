@@ -23,15 +23,15 @@ final class MessengerMailerTest extends FunctionalTestCase
 {
     use MailerAssertionsTrait;
 
-    protected $initializeDatabase = false;
+    protected bool $initializeDatabase = false;
 
-    protected $testExtensionsToLoad = [
+    protected array $testExtensionsToLoad = [
         'typo3conf/ext/typo3_psr_cache_adapter',
         'typo3conf/ext/t3_messenger',
         'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/Extensions/t3_messenger_test',
     ];
 
-    protected $configurationToUseInTestInstance = [
+    protected array $configurationToUseInTestInstance = [
         'MAIL' => [
             'transport' => 'null',
             'defaultMailFromAddress' => 'info@mustermann.com',
@@ -64,7 +64,7 @@ final class MessengerMailerTest extends FunctionalTestCase
 
         $this->assertQueuedEmailCount(1, 'null://');
         $this->assertEmailHasHeader($mailMessage, 'X-Mailer');
-        self::assertSame($mailMessage->getSubject(), 'This is modified by an event');
+        self::assertSame('This is modified by an event', $mailMessage->getSubject());
         self::assertEquals($mailMessage, $this->subject->getSentMessage()->getOriginalMessage());
     }
 }
