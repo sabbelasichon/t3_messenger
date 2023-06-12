@@ -22,7 +22,7 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 use Symfony\Component\Messenger\Worker;
 use TYPO3\CMS\Core\Http\Uri;
-use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -33,20 +33,19 @@ final class MessengerTest extends FunctionalTestCase
 {
     private const ROOT_PAGE_UID = 1;
 
-    protected array $testExtensionsToLoad = [
-        'typo3conf/ext/typo3_psr_cache_adapter',
-        'typo3conf/ext/t3_messenger',
-        'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/Extensions/t3_messenger_test',
-    ];
-
-    protected array $pathsToLinkInTestInstance = [
-        'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/sites' => 'typo3conf/sites',
-    ];
-
     private Site $site;
 
     protected function setUp(): void
     {
+        $this->pathsToLinkInTestInstance = [
+            'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/sites' => 'typo3conf/sites',
+        ];
+        $this->testExtensionsToLoad = [
+            'typo3conf/ext/typo3_psr_cache_adapter',
+            'typo3conf/ext/t3_messenger',
+            'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/Extensions/t3_messenger_test',
+        ];
+
         parent::setUp();
         $this->importDataSet(__DIR__ . '/Fixtures/Database/pages.xml');
         $this->setUpFrontendRootPage(
@@ -55,7 +54,7 @@ final class MessengerTest extends FunctionalTestCase
         );
 
         $this->site = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByRootPageId(self::ROOT_PAGE_UID);
-        $GLOBALS['LANG'] = $this->get(LanguageService::class);
+        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->create('en');
     }
 
     public function testThatCommandIsRoutedToAsyncTransportSuccessfully(): void

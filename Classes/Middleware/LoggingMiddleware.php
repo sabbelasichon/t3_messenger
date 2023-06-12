@@ -13,7 +13,7 @@ namespace Ssch\T3Messenger\Middleware;
 
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
@@ -22,10 +22,10 @@ final class LoggingMiddleware implements MiddlewareInterface, LoggerAwareInterfa
 {
     use LoggerAwareTrait;
 
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+    public function __construct()
+    {
+        $this->logger = new NullLogger();
+    }
 
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
