@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Controller;
 
+use Psr\Http\Message\ResponseInterface;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyCommand;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Service\MyService;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -24,8 +25,15 @@ final class MessengerController extends ActionController
         $this->myService = $myService;
     }
 
+    /**
+     * @return void|ResponseInterface
+     */
     public function dispatchAction()
     {
         $this->myService->dispatch(new MyCommand('max.mustermann@domain.com'));
+
+        if (method_exists($this, 'htmlResponse')) {
+            return $this->htmlResponse();
+        }
     }
 }
