@@ -11,11 +11,11 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\DependencyInjection\Compiler;
 
-use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
+use Ssch\T3Messenger\CommandToHandlerMapper;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-final class MessengerProviderPass implements CompilerPassInterface
+final class MessengerCommandToHandlerMapperPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
@@ -23,17 +23,17 @@ final class MessengerProviderPass implements CompilerPassInterface
             return;
         }
 
-        if (! $container->hasDefinition(MessengerProvider::class)) {
+        if (! $container->hasDefinition(CommandToHandlerMapper::class)) {
             return;
         }
 
         // steal configurations already done by the MessengerPass so we dont have to duplicate the work
         // as approved by @ryanweaver with the "I've seen Nicolas do worse" certificate
         // @sebastian schreiber: Love this comment
-        $messengerProviderConfiguration = $container->getDefinition(MessengerProvider::class);
+        $commandToHandlerMapper = $container->getDefinition(CommandToHandlerMapper::class);
 
         $consumeCommandDefinition = $container->getDefinition('console.command.messenger_debug');
         $mapping = $consumeCommandDefinition->getArgument(0);
-        $messengerProviderConfiguration->replaceArgument(2, $mapping);
+        $commandToHandlerMapper->replaceArgument(0, $mapping);
     }
 }
