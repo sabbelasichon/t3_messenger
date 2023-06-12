@@ -18,9 +18,9 @@ jobs:
             matrix:
                 php-versions: [ 7.4, 8.0, 8.1 ]
                 typo3-versions:
-                    - { typo3: 10, testing: 6 }
-                    - { typo3: 11, testing: 6 }
-                    - { typo3: 12, testing: 6 }
+                    - { typo3: ^10.4, testing: ^6 }
+                    - { typo3: ^11.5, testing: ^6 }
+                    - { typo3: ^12.4, testing: ^7 }
 
         name: "Run tests with PHP ${{ matrix.php-versions }}
                   using TYPO3 ${{ matrix.typo3-versions.typo3 }}
@@ -32,6 +32,7 @@ jobs:
                 with:
                     php-version: "${{ matrix.php-versions }}"
                     extensions: intl, mbstring, pdo_sqlite, pdo_mysql
+                    tools: composer:v2
                     coverage: none
                 env:
                     COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,8 +40,11 @@ jobs:
             - name: Start MySQL
               run: sudo /etc/init.d/mysql start
 
+            - name: Run composer require
+              run: "composer require typo3/testing-framework:${{ matrix.typo3-versions.testing }} typo3/cms-core:${{ matrix.typo3-versions.typo3 }}"
+
             # see https://github.com/ramsey/composer-install
-            -   uses: "ramsey/composer-install@v2"
+            - uses: "ramsey/composer-install@v2"
 
             - name: "Run Unit tests"
               run: composer test-unit
