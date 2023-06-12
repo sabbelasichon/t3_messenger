@@ -22,7 +22,7 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 use Symfony\Component\Messenger\Worker;
 use TYPO3\CMS\Core\Http\Uri;
-use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -54,7 +54,7 @@ final class MessengerTest extends FunctionalTestCase
         );
 
         $this->site = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByRootPageId(self::ROOT_PAGE_UID);
-        $GLOBALS['LANG'] = $this->get(LanguageService::class);
+        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->create('en');
     }
 
     public function testThatCommandIsRoutedToAsyncTransportSuccessfully(): void
