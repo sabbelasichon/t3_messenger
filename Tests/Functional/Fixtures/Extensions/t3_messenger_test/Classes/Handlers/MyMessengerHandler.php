@@ -22,6 +22,11 @@ final class MyMessengerHandler implements MessageSubscriberInterface, LoggerAwar
 {
     use LoggerAwareTrait;
 
+    public function __invoke(MyOtherCommand $command): void
+    {
+        $this->logger->info(sprintf('Hi %s', $command->getNote()));
+    }
+
     public function firstMessageMethod(MyCommand $command): void
     {
         $this->logger->info(sprintf('Hi %s', $command->getEmail()));

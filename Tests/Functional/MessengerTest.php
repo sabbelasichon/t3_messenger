@@ -33,20 +33,19 @@ final class MessengerTest extends FunctionalTestCase
 {
     private const ROOT_PAGE_UID = 1;
 
-    protected array $testExtensionsToLoad = [
-        'typo3conf/ext/typo3_psr_cache_adapter',
-        'typo3conf/ext/t3_messenger',
-        'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/Extensions/t3_messenger_test',
-    ];
-
-    protected array $pathsToLinkInTestInstance = [
-        'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/sites' => 'typo3conf/sites',
-    ];
-
     private Site $site;
 
     protected function setUp(): void
     {
+        $this->pathsToLinkInTestInstance = [
+            'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/sites' => 'typo3conf/sites',
+        ];
+        $this->testExtensionsToLoad = [
+            'typo3conf/ext/typo3_psr_cache_adapter',
+            'typo3conf/ext/t3_messenger',
+            'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/Extensions/t3_messenger_test',
+        ];
+
         parent::setUp();
         $this->importDataSet(__DIR__ . '/Fixtures/Database/pages.xml');
         $this->setUpFrontendRootPage(

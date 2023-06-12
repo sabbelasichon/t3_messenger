@@ -22,30 +22,28 @@ final class BodyRendererTest extends FunctionalTestCase
 {
     use MailerAssertionsTrait;
 
-    protected bool $initializeDatabase = false;
-
-    protected array $testExtensionsToLoad = [
-        'typo3conf/ext/typo3_psr_cache_adapter',
-        'typo3conf/ext/t3_messenger',
-        'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/Extensions/t3_messenger_test',
-    ];
-
-    protected array $configurationToUseInTestInstance = [
-        'MAIL' => [
-            'transport' => 'null',
-            'defaultMailFromAddress' => 'info@mustermann.com',
-            'defaultMailFromName' => 'Mustermann AG',
-            'defaultMailReplyToAddress' => 'info@mustermann.com',
-            'defaultMailReplyToName' => 'Mustermann AG',
-        ],
-    ];
-
     private BodyRendererInterface $subject;
 
     private MailerInterface $mailer;
 
     protected function setUp(): void
     {
+        $this->initializeDatabase = false;
+        $this->configurationToUseInTestInstance = [
+            'MAIL' => [
+                'transport' => 'null',
+                'defaultMailFromAddress' => 'info@mustermann.com',
+                'defaultMailFromName' => 'Mustermann AG',
+                'defaultMailReplyToAddress' => 'info@mustermann.com',
+                'defaultMailReplyToName' => 'Mustermann AG',
+            ],
+        ];
+        $this->testExtensionsToLoad = [
+            'typo3conf/ext/typo3_psr_cache_adapter',
+            'typo3conf/ext/t3_messenger',
+            'typo3conf/ext/t3_messenger/Tests/Functional/Fixtures/Extensions/t3_messenger_test',
+        ];
+
         parent::setUp();
         $this->subject = $this->get(BodyRendererInterface::class);
         $this->mailer = $this->get(MailerInterface::class);

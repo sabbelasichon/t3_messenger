@@ -34,6 +34,7 @@ CODE_SAMPLE;
         __DIR__ . '/Tests',
         __DIR__ . '/Configuration',
         __DIR__ . '/ecs.php',
+        __DIR__ . '/ext_localconf.php',
     ]);
 
     $ecsConfig->ruleWithConfiguration(ArraySyntaxFixer::class, [
@@ -62,4 +63,9 @@ CODE_SAMPLE;
     ],);
 
     $ecsConfig->sets([SetList::PSR_12, SetList::SYMPLIFY, SetList::COMMON, SetList::CLEAN_CODE]);
+
+    $ecsConfig->skip([
+        DeclareStrictTypesFixer::class => [__DIR__ . '/ext_localconf.php', __DIR__ . '/**/ext_localconf.php'],
+        HeaderCommentFixer::class => [__DIR__ . '/ext_localconf.php', __DIR__ . '/**/ext_localconf.php'],
+    ]);
 };
