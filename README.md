@@ -176,6 +176,14 @@ If you have installed **typo3/cms-lowlevel** you can see your Messenger configur
 
 You cannot only see your System wide configuration but also your Messages and the assigned Handlers.
 
+## Environment specific configurations
+
+If you want to handle i.e. your messages synchronously in the development environment but still asynchronously in the production environment you can do so.
+You just have to place another Messenger.php under Configuration/dev/ in your extension.
+You can do the same for your testing environment by placing the Messenger.php under Configuration/test/ folder.
+It is a simple convention but convenient in your daily developer life.
+Have a look at [Handling Messages Sync while Developing](https://symfonycasts.com/screencast/messenger/dev-sync) why this feature is so convenient.
+
 ## Further reading
 [Batch processing with Messenger](https://wolfgang-klinger.medium.com/how-to-handle-messages-in-batches-with-symfony-messenger-c91b5aa1c8b1)
 
