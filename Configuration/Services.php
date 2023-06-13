@@ -12,10 +12,12 @@ declare(strict_types=1);
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Ssch\Cache\Factory\Psr6Factory;
+use Ssch\T3Messenger\Command\ShowConfigurationCommand;
+use Ssch\T3Messenger\CommandToHandlerMapper;
 use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerAlterTableListenerPass;
+use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerCommandToHandlerMapperPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerMailerPass;
-use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerProviderPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\T3MessengerPass;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
 use Ssch\T3Messenger\EventListener\AlterTableDefinitionStatementsEventListener;
@@ -89,7 +91,6 @@ use Symfony\Component\Mime\BodyRendererInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent;
 use TYPO3\CMS\Core\DependencyInjection\ConsoleCommandPass;
-use TYPO3\CMS\Core\Package\PackageManager;
 
 return static function (ContainerConfigurator $containerConfigurator, ContainerBuilder $containerBuilder): void {
     if (! class_exists(\TYPO3\CMS\Core\Mail\Event\AfterMailerSentMessageEvent::class, false)) {
@@ -138,13 +139,12 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             'event' => AlterTableDefinitionStatementsEvent::class,
         ]);
 
+    $services->set(CommandToHandlerMapper::class)->args([
+        abstract_arg('passed by MessengerCommandToHandlerMapperPass'),
+    ]);
+
     // Lowlevel Configuration Provider
     $services->set(MessengerProvider::class)
-        ->args([
-            service(MessengerConfigurationResolver::class),
-            service(PackageManager::class),
-            abstract_arg('mapping'),
-        ])
         ->tag(
             'lowlevel.configuration.module.provider',
             [
@@ -411,6 +411,10 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ]);
     }
 
+    $services->set(ShowConfigurationCommand::class)->tag('console.command', [
+        'command' => 't3_messenger:show-configuration',
+    ]);
+
     // must be registered before removing private services as some might be listeners/subscribers
     // but as late as possible to get resolved parameters
     $containerBuilder->addCompilerPass($registerListenersPass, PassConfig::TYPE_BEFORE_REMOVING);
@@ -418,6 +422,6 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $containerBuilder->addCompilerPass(new T3MessengerPass(new MessengerConfigurationResolver()));
     $containerBuilder->addCompilerPass(new MessengerPass());
     $containerBuilder->addCompilerPass(new ConsoleCommandPass('console.command'));
-    $containerBuilder->addCompilerPass(new MessengerProviderPass());
+    $containerBuilder->addCompilerPass(new MessengerCommandToHandlerMapperPass());
     $containerBuilder->addCompilerPass(new MessengerAlterTableListenerPass());
 };

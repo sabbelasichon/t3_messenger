@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\DependencyInjection;
 
+use Ssch\T3Messenger\Domain\Dto\MessengerConfiguration;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Package\PackageManager;
 
@@ -23,7 +24,7 @@ final class MessengerConfigurationCollector
         $this->packageManager = $packageManager;
     }
 
-    public function collect(): \ArrayObject
+    public function collect(): MessengerConfiguration
     {
         $configPackages = ['Configuration/Messenger.php'];
         if (Environment::getContext()->isDevelopment()) {
@@ -32,16 +33,21 @@ final class MessengerConfigurationCollector
             $configPackages[] = 'Configuration/test/Messenger.php';
         }
 
-        $config = new \ArrayObject();
+        $config = new MessengerConfiguration();
         foreach ($this->packageManager->getAvailablePackages() as $package) {
             foreach ($configPackages as $configPackage) {
                 $commandBusConfigurationFile = $package->getPackagePath() . $configPackage;
-                if (file_exists($commandBusConfigurationFile)) {
-                    $commandBusInPackage = require $commandBusConfigurationFile;
-                    if (is_array($commandBusInPackage)) {
-                        $config->exchangeArray(array_replace_recursive($config->getArrayCopy(), $commandBusInPackage));
-                    }
+                if (! file_exists($commandBusConfigurationFile)) {
+                    continue;
                 }
+
+                $commandBusInPackage = require $commandBusConfigurationFile;
+                if (! is_array($commandBusInPackage)) {
+                    continue;
+                }
+
+                $config->exchangeArray(array_replace_recursive($config->getArrayCopy(), $commandBusInPackage));
+                $config->addExtension($package->getPackageKey());
             }
         }
 
