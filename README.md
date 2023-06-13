@@ -188,3 +188,6 @@ Have a look at [Handling Messages Sync while Developing](https://symfonycasts.co
 [Batch processing with Messenger](https://wolfgang-klinger.medium.com/how-to-handle-messages-in-batches-with-symfony-messenger-c91b5aa1c8b1)
 
 [Symfony Messenger without Supervisor](https://dev.to/fadymr/use-symfony-messenger-without-supervisor-3cl6)
+
+## Credits
+Icons used in this repository are made by [Freepik][8] from [www.flaticon.com][9]
