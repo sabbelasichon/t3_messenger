@@ -39,13 +39,3 @@ parameters:
 			message: "#^Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Redis\\\\Transport\\\\RedisTransportFactory not found\\.$#"
 			count: 1
 			path: Configuration/Services.php
-
-		-
-			message: "#^Function Symfony\\\\Component\\\\DependencyInjection\\\\Loader\\\\Configurator\\\\abstract_arg not found\\.$#"
-			count: 26
-			path: Configuration/Services.php
-
-		-
-			message: "#^Used function Symfony\\\\Component\\\\DependencyInjection\\\\Loader\\\\Configurator\\\\abstract_arg not found\\.$#"
-			count: 1
-			path: Configuration/Services.php

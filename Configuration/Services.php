@@ -15,6 +15,8 @@ use Ssch\Cache\Factory\Psr6Factory;
 use Ssch\T3Messenger\Command\ShowConfigurationCommand;
 use Ssch\T3Messenger\CommandToHandlerMapper;
 use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
+use Ssch\T3Messenger\Dashboard\Widgets\ListOfFailedMessagesWidget;
+use Ssch\T3Messenger\Dashboard\Widgets\Provider\FailedMessagesDataProvider;
 use Ssch\T3Messenger\DependencyInjection\Compiler\FailureReceiverPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerAlterTableListenerPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerCommandToHandlerMapperPass;
@@ -419,6 +421,23 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
 
     // Dashboard Integration
     $services->set(FailedMessageRepository::class)->args([abstract_arg('failure_transports')]);
+    $services
+        ->set('dashboard.widget.failedMessages')
+        ->class(ListOfFailedMessagesWidget::class)
+        ->arg('$dataProvider', service(FailedMessagesDataProvider::class))
+        ->arg('$view', service('dashboard.views.widget'))
+        ->tag(
+            'dashboard.widget',
+            [
+                'identifier' => 'failedMessages',
+                'groupNames' => 'news',
+                'title' => 'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.title',
+                'description' => 'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.description',
+                'iconIdentifier' => 'tx-messenger-failed-messages-icon',
+                'height' => 'large',
+                'width' => 'large',
+            ]
+        );
 
     // must be registered before removing private services as some might be listeners/subscribers
     // but as late as possible to get resolved parameters
