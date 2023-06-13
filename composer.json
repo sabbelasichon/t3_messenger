@@ -3,7 +3,6 @@
   "type": "typo3-cms-extension",
   "description": "Wrapper for Symfony Messenger",
   "license": "GPL-2.0+",
-  "homepage": "http://www.schreibersebastian.de",
   "keywords": [
     "Messenger"
   ],
@@ -11,14 +10,14 @@
     {
       "name": "Sebastian Schreiber",
       "email": "breakpoint@schreibersebastian.de",
-      "role": "Developer",
-      "homepage": "http://www.schreibersebastian.de"
+      "role": "Developer"
     }
   ],
   "require": {
     "php": "^7.4 || ^8.0",
     "typo3/cms-core": "^10.4 || ^11.5 || ^12.4",
     "typo3/cms-extbase": "^10.4 || ^11.5 || ^12.4",
+    "typo3/cms-dashboard": "^10.4 || ^11.5 || ^12.4",
     "symfony/messenger": "^5.0 || ^6.2",
     "symfony/options-resolver": "^5.0 || ^6.2",
     "symfony/doctrine-messenger": "^5.0 || ^6.2",

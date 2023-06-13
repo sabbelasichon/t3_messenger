@@ -1,0 +1,4 @@
+module.tx_dashboard.view {
+    templateRootPaths.110 = EXT:t3_messenger/Resources/Private/Templates
+    partialRootPaths.110 = EXT:t3_messenger/Resources/Private/Partials
+}

@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Ssch\T3Messenger\Transport;
 
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Types\Type;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\Connection;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\DoctrineTransport;

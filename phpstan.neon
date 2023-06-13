@@ -16,3 +16,7 @@ parameters:
   excludePaths:
     analyse:
       -  Tests/Functional/Fixtures/Extensions/*
+  ignoreErrors:
+    - "#Used function Symfony\\\\Component\\\\DependencyInjection\\\\Loader\\\\Configurator\\\\abstract_arg not found#"
+    - "#Function Symfony\\\\Component\\\\DependencyInjection\\\\Loader\\\\Configurator\\\\abstract_arg not found#"
+
