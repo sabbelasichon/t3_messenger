@@ -15,6 +15,7 @@ use Ssch\Cache\Factory\Psr6Factory;
 use Ssch\T3Messenger\Command\ShowConfigurationCommand;
 use Ssch\T3Messenger\CommandToHandlerMapper;
 use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
+use Ssch\T3Messenger\DependencyInjection\Compiler\FailureReceiverPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerAlterTableListenerPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerCommandToHandlerMapperPass;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerMailerPass;
@@ -28,6 +29,7 @@ use Ssch\T3Messenger\Middleware\LoggingMiddleware;
 use Ssch\T3Messenger\Middleware\ServerRequestContextMiddleware;
 use Ssch\T3Messenger\Middleware\ValidationMiddleware;
 use Ssch\T3Messenger\Mime\BodyRenderer;
+use Ssch\T3Messenger\Repository\FailedMessageRepository;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -415,6 +417,9 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         'command' => 't3_messenger:show-configuration',
     ]);
 
+    // Dashboard Integration
+    $services->set(FailedMessageRepository::class)->args([abstract_arg('failure_transports')]);
+
     // must be registered before removing private services as some might be listeners/subscribers
     // but as late as possible to get resolved parameters
     $containerBuilder->addCompilerPass($registerListenersPass, PassConfig::TYPE_BEFORE_REMOVING);
@@ -424,4 +429,5 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $containerBuilder->addCompilerPass(new ConsoleCommandPass('console.command'));
     $containerBuilder->addCompilerPass(new MessengerCommandToHandlerMapperPass());
     $containerBuilder->addCompilerPass(new MessengerAlterTableListenerPass());
+    $containerBuilder->addCompilerPass(new FailureReceiverPass());
 };
