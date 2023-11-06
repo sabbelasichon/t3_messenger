@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Ssch\T3Messenger\Repository;
 
 use Ssch\T3Messenger\Domain\Dto\FailedMessage;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Receiver\ListableReceiverInterface;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 use TYPO3\CMS\Core\SingletonInterface;
@@ -37,7 +38,7 @@ final class FailedMessageRepository implements SingletonInterface
                 continue;
             }
 
-            $failedMessages = $failureTransport->all();
+            $failedMessages = $this->inReverseOrder($failureTransport->all());
 
             foreach ($failedMessages as $failedMessage) {
                 $allFailedMessages[] = FailedMessage::createFromEnvelope($failedMessage);
@@ -45,5 +46,19 @@ final class FailedMessageRepository implements SingletonInterface
         }
 
         return $allFailedMessages;
+    }
+
+    /**
+     * @param Envelope[] $failedMessages
+     *
+     * @return Envelope[];
+     */
+    private function inReverseOrder(iterable $failedMessages): array
+    {
+        if (! is_array($failedMessages)) {
+            $failedMessages = iterator_to_array($failedMessages);
+        }
+
+        return array_reverse($failedMessages);
     }
 }

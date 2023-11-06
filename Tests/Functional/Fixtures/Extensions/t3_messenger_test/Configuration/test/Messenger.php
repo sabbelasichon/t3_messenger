@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyCommand;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyFailingCommand;
+use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyOtherFailingCommand;
 
 return [
     'routing' => [
@@ -18,6 +19,9 @@ return [
             'senders' => ['async'],
         ],
         MyFailingCommand::class => [
+            'senders' => ['async'],
+        ],
+        MyOtherFailingCommand::class => [
             'senders' => ['async'],
         ],
     ],
