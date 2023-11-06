@@ -16,6 +16,7 @@ use Psr\Log\LoggerAwareTrait;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyCommand;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyFailingCommand;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyOtherCommand;
+use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyOtherFailingCommand;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 final class MyMessengerHandler implements MessageSubscriberInterface, LoggerAwareInterface
@@ -42,6 +43,11 @@ final class MyMessengerHandler implements MessageSubscriberInterface, LoggerAwar
         throw new \InvalidArgumentException('Failing by intention');
     }
 
+    public function fourthMessageMethod(MyOtherFailingCommand $command): void
+    {
+        throw new \InvalidArgumentException('Failing by intention');
+    }
+
     public static function getHandledMessages(): iterable
     {
         yield MyCommand::class => [
@@ -54,6 +60,10 @@ final class MyMessengerHandler implements MessageSubscriberInterface, LoggerAwar
 
         yield MyFailingCommand::class => [
             'method' => 'thirdMessageMethod',
+        ];
+
+        yield MyOtherFailingCommand::class => [
+            'method' => 'fourthMessageMethod',
         ];
     }
 }

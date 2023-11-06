@@ -13,6 +13,7 @@ namespace Ssch\T3Messenger\Tests\Functional\Repository;
 
 use Ssch\T3Messenger\Repository\FailedMessageRepository;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyFailingCommand;
+use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyOtherFailingCommand;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnFailureLimitListener;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -42,13 +43,32 @@ final class FailedMessageRepositoryTest extends FunctionalTestCase
         // Arrange
         $this->messageBus->dispatch(new MyFailingCommand('Add to failed queue'));
         $this->runWorker();
+        $this->messageBus->dispatch(new MyOtherFailingCommand('Add to failed queue'));
+        $this->runWorker();
 
         // Act
         $failedMessages = $this->subject->list();
 
         // Assert
-        self::assertSame(MyFailingCommand::class, $failedMessages[0]->getMessage());
-        self::assertSame('Failing by intention', $failedMessages[0]->getErrorMessage());
+        $failedMessagesInAssertion = [];
+        foreach ($failedMessages as $failedMessage) {
+            $failedMessagesInAssertion[] = [
+                'class' => $failedMessage->getMessage(),
+                'error_message' => $failedMessage->getErrorMessage(),
+            ];
+        }
+
+        self::assertCount(2, $failedMessages);
+        self::assertSame([
+            [
+                'class' => MyOtherFailingCommand::class,
+                'error_message' => 'Failing by intention',
+            ],
+            [
+                'class' => MyFailingCommand::class,
+                'error_message' => 'Failing by intention',
+            ],
+        ], $failedMessagesInAssertion);
     }
 
     private function runWorker(): void
