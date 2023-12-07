@@ -15,12 +15,13 @@ use Psr\Log\LoggerInterface;
 use Ssch\T3Messenger\Dashboard\Widgets\Dto\MessageSpecification;
 use Ssch\T3Messenger\Domain\Dto\FailedMessage;
 use Symfony\Component\Console\Exception\RuntimeException;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\SentToFailureTransportStamp;
 use Symfony\Component\Messenger\Transport\Receiver\ListableReceiverInterface;
 use Symfony\Component\Messenger\Transport\Receiver\SingleMessageReceiver;
 use Symfony\Component\Messenger\Worker;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 use TYPO3\CMS\Core\SingletonInterface;
 
@@ -34,7 +35,7 @@ final class FailedMessageRepository implements SingletonInterface
 
     private LoggerInterface $logger;
 
-    public function __construct(ServiceProviderInterface $failureTransports, MessageBusInterface $messageBus, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
+    public function __construct(ServiceProviderInterface $failureTransports, EventDispatcherInterface $eventDispatcher, MessageBusInterface $messageBus, LoggerInterface $logger)
     {
         $this->failureTransports = $failureTransports;
         $this->messageBus = $messageBus;
@@ -86,6 +87,7 @@ final class FailedMessageRepository implements SingletonInterface
 
         $envelope = $failureTransport->find($messageSpecification->getId());
 
+        // $sentToFailureTransportStamp = $envelope->last(SentToFailureTransportStamp::class);
         if ($envelope === null) {
             throw new RuntimeException(sprintf(
                 'The message with id "%s" was not found.',
@@ -93,7 +95,7 @@ final class FailedMessageRepository implements SingletonInterface
             ));
         }
 
-        $singleReceiver = new SingleMessageReceiver($failureTransport, $envelope);
+        // $singleReceiver = new SingleMessageReceiver($failureTransport, $envelope);
         $this->runWorker($messageSpecification->getTransport(), $singleReceiver);
     }
 

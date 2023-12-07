@@ -43,6 +43,21 @@
             <trans-unit id="widgets.failedMessages.widget.actions.delete.button.close" xml:space="preserve">
                 <source>Close</source>
             </trans-unit>
+            <trans-unit id="widgets.failedMessages.widget.actions.retry" xml:space="preserve">
+                <source>Retry</source>
+            </trans-unit>
+            <trans-unit id="widgets.failedMessages.widget.actions.retry.confirm.title" xml:space="preserve">
+                <source>Retry Message</source>
+            </trans-unit>
+            <trans-unit id="widgets.failedMessages.widget.actions.retry.confirm.message" xml:space="preserve">
+                <source>Are you sure you want to retry this message?</source>
+            </trans-unit>
+            <trans-unit id="widgets.failedMessages.widget.actions.retry.button.ok" xml:space="preserve">
+                <source>Retry</source>
+            </trans-unit>
+            <trans-unit id="widgets.failedMessages.widget.actions.retry.button.close" xml:space="preserve">
+                <source>Close</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

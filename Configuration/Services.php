@@ -420,7 +420,9 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     ]);
 
     // Dashboard Integration
-    $services->set(FailedMessageRepository::class)->args([abstract_arg('failure_transports')]);
+    $services->set(FailedMessageRepository::class)->args(
+        [abstract_arg('failure_transports'), service('event_dispatcher')]
+    );
     $services
         ->set('dashboard.widget.failedMessages')
         ->class(ListOfFailedMessagesWidget::class)
