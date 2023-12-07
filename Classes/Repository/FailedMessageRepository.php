@@ -11,11 +11,16 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\Repository;
 
+use Psr\Log\LoggerInterface;
 use Ssch\T3Messenger\Dashboard\Widgets\Dto\MessageSpecification;
 use Ssch\T3Messenger\Domain\Dto\FailedMessage;
 use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Receiver\ListableReceiverInterface;
+use Symfony\Component\Messenger\Transport\Receiver\SingleMessageReceiver;
+use Symfony\Component\Messenger\Worker;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 use TYPO3\CMS\Core\SingletonInterface;
 
@@ -23,9 +28,18 @@ final class FailedMessageRepository implements SingletonInterface
 {
     private ServiceProviderInterface $failureTransports;
 
-    public function __construct(ServiceProviderInterface $failureTransports)
+    private MessageBusInterface $messageBus;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private LoggerInterface $logger;
+
+    public function __construct(ServiceProviderInterface $failureTransports, MessageBusInterface $messageBus, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
         $this->failureTransports = $failureTransports;
+        $this->messageBus = $messageBus;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->logger = $logger;
     }
 
     /**
@@ -52,14 +66,7 @@ final class FailedMessageRepository implements SingletonInterface
 
     public function removeMessage(MessageSpecification $messageSpecification): void
     {
-        $failureTransport = $this->failureTransports->get($messageSpecification->getTransport());
-
-        if (! $failureTransport instanceof ListableReceiverInterface) {
-            throw new RuntimeException(sprintf(
-                'The "%s" receiver does not support removing specific messages.',
-                $messageSpecification->getTransport()
-            ));
-        }
+        $failureTransport = $this->getReceiver($messageSpecification->getTransport());
 
         $envelope = $failureTransport->find($messageSpecification->getId());
 
@@ -71,6 +78,23 @@ final class FailedMessageRepository implements SingletonInterface
         }
 
         $failureTransport->reject($envelope);
+    }
+
+    public function retryMessage(MessageSpecification $messageSpecification): void
+    {
+        $failureTransport = $this->getReceiver($messageSpecification->getTransport());
+
+        $envelope = $failureTransport->find($messageSpecification->getId());
+
+        if ($envelope === null) {
+            throw new RuntimeException(sprintf(
+                'The message with id "%s" was not found.',
+                $messageSpecification->getId()
+            ));
+        }
+
+        $singleReceiver = new SingleMessageReceiver($failureTransport, $envelope);
+        $this->runWorker($messageSpecification->getTransport(), $singleReceiver);
     }
 
     /**
@@ -85,5 +109,33 @@ final class FailedMessageRepository implements SingletonInterface
         }
 
         return array_reverse($failedMessages);
+    }
+
+    private function getReceiver(string $transport): ListableReceiverInterface
+    {
+        $failureTransport = $this->failureTransports->get($transport);
+
+        if (! $failureTransport instanceof ListableReceiverInterface) {
+            throw new RuntimeException(sprintf(
+                'The "%s" receiver does not support removing specific messages.',
+                $transport
+            ));
+        }
+
+        return $failureTransport;
+    }
+
+    private function runWorker(string $transport, SingleMessageReceiver $receiver): void
+    {
+        $worker = new Worker(
+            [
+                $transport => $receiver,
+            ],
+            $this->messageBus,
+            $this->eventDispatcher,
+            $this->logger
+        );
+
+        $worker->run();
     }
 }
