@@ -1,4 +1,4 @@
-<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers" data-namespace-typo3-fluid="true">
 <f:layout name="Widget/Widget" />
 <f:section name="main">
     <f:if condition="{failedMessages}">
@@ -12,6 +12,7 @@
                         <th><span><f:translate key="widgets.failedMessages.widget.header.error_message" extensionName="T3Messenger" /></span></th>
                         <th><span><f:translate key="widgets.failedMessages.widget.header.redelivered" extensionName="T3Messenger" /></span></th>
                         <th><span><f:translate key="widgets.failedMessages.widget.header.retry_count" extensionName="T3Messenger" /></span></th>
+                        <th><span><f:translate key="widgets.failedMessages.widget.header.actions" extensionName="T3Messenger" /></span></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -33,6 +34,20 @@
                             </td>
                             <td>
                                 {failedMessage.retryCount}
+                            </td>
+                            <td>
+                                <f:be.link
+                                        class="js-t3-messenger-remove-message"
+                                        route="dashboard" parameters="{action: 'removeMessage', failedMessage: failedMessage.messageId}"
+                                        data="{
+                                            modal-title: '{f:translate(key: \'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.widget.actions.delete.confirm.title\')}',
+                                            modal-question: '{f:translate(key: \'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.widget.actions.delete.confirm.message\')}',
+                                            modal-ok: '{f:translate(key: \'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.widget.actions.delete.button.ok\')}',
+                                            modal-cancel: '{f:translate(key: \'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.widget.actions.delete.button.close\')}'
+                                        }"
+                                >
+                                    <core:icon identifier="actions-delete" alternativeMarkupIdentifier="inline"/>
+                                </f:be.link>
                             </td>
                         </tr>
                     </f:for>
