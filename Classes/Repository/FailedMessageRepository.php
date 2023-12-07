@@ -11,7 +11,9 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\Repository;
 
+use Ssch\T3Messenger\Dashboard\Widgets\Dto\MessageSpecification;
 use Ssch\T3Messenger\Domain\Dto\FailedMessage;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Receiver\ListableReceiverInterface;
 use Symfony\Contracts\Service\ServiceProviderInterface;
@@ -41,11 +43,34 @@ final class FailedMessageRepository implements SingletonInterface
             $failedMessages = $this->inReverseOrder($failureTransport->all());
 
             foreach ($failedMessages as $failedMessage) {
-                $allFailedMessages[] = FailedMessage::createFromEnvelope($failedMessage);
+                $allFailedMessages[] = FailedMessage::createFromEnvelope($failedMessage, $serviceId);
             }
         }
 
         return $allFailedMessages;
+    }
+
+    public function removeMessage(MessageSpecification $messageSpecification): void
+    {
+        $failureTransport = $this->failureTransports->get($messageSpecification->getTransport());
+
+        if (! $failureTransport instanceof ListableReceiverInterface) {
+            throw new RuntimeException(sprintf(
+                'The "%s" receiver does not support removing specific messages.',
+                $messageSpecification->getTransport()
+            ));
+        }
+
+        $envelope = $failureTransport->find($messageSpecification->getId());
+
+        if ($envelope === null) {
+            throw new RuntimeException(sprintf(
+                'The message with id "%s" was not found.',
+                $messageSpecification->getId()
+            ));
+        }
+
+        $failureTransport->reject($envelope);
     }
 
     /**

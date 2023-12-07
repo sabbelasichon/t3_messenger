@@ -35,6 +35,8 @@ final class FailedMessage
      */
     private $messageId;
 
+    private string $transportName;
+
     /**
      * @param class-string $message
      * @param mixed $messageId
@@ -44,13 +46,15 @@ final class FailedMessage
         string $errorMessage,
         DateTimeInterface $redelivered,
         int $retryCount,
-        $messageId
+        $messageId,
+        string $transportName
     ) {
         $this->message = $message;
         $this->errorMessage = $errorMessage;
         $this->redelivered = $redelivered;
         $this->retryCount = $retryCount;
         $this->messageId = $messageId;
+        $this->transportName = $transportName;
     }
 
     /**
@@ -79,12 +83,17 @@ final class FailedMessage
         return $this->errorMessage;
     }
 
+    public function getTransportName(): string
+    {
+        return $this->transportName;
+    }
+
     public function getRetryCount(): int
     {
         return $this->retryCount;
     }
 
-    public static function createFromEnvelope(Envelope $failedMessage): self
+    public static function createFromEnvelope(Envelope $failedMessage, string $transportName): self
     {
         $errorDetailsStamp = $failedMessage->last(ErrorDetailsStamp::class);
 
@@ -110,7 +119,8 @@ final class FailedMessage
             $errorMessage,
             $redeliveryStamp->getRedeliveredAt(),
             $redeliveryStamp->getRetryCount(),
-            $transportMessageIdStamp->getId()
+            $transportMessageIdStamp->getId(),
+            $transportName
         );
     }
 }

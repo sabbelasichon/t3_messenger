@@ -36,18 +36,17 @@
                                 {failedMessage.retryCount}
                             </td>
                             <td>
-                                <f:be.link
+                                <a href="#"
                                         class="js-t3-messenger-remove-message"
-                                        route="dashboard" parameters="{action: 'removeMessage', failedMessage: failedMessage.messageId}"
-                                        data="{
-                                            modal-title: '{f:translate(key: \'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.widget.actions.delete.confirm.title\')}',
-                                            modal-question: '{f:translate(key: \'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.widget.actions.delete.confirm.message\')}',
-                                            modal-ok: '{f:translate(key: \'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.widget.actions.delete.button.ok\')}',
-                                            modal-cancel: '{f:translate(key: \'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.widget.actions.delete.button.close\')}'
-                                        }"
+                                        data-message-id="{failedMessage.messageId}"
+                                        data-message-transport="{failedMessage.transportName}"
+                                        data-modal-title="{f:translate(key: 'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.widget.actions.delete.confirm.title')}"
+                                        data-modal-question="{f:translate(key: 'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.widget.actions.delete.confirm.message')}"
+                                        data-modal-ok="{f:translate(key: 'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.widget.actions.delete.button.ok')}"
+                                        data-modal-cancel="{f:translate(key: 'LLL:EXT:t3_messenger/Resources/Private/Language/locallang.xlf:widgets.failedMessages.widget.actions.delete.button.close')}"
                                 >
                                     <core:icon identifier="actions-delete" alternativeMarkupIdentifier="inline"/>
-                                </f:be.link>
+                                </a>
                             </td>
                         </tr>
                     </f:for>

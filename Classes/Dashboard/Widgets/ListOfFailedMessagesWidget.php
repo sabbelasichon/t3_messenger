@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\Dashboard\Widgets;
 
-use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 use TYPO3\CMS\Dashboard\Widgets\RequireJsModuleInterface;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
@@ -57,11 +56,8 @@ final class ListOfFailedMessagesWidget implements WidgetInterface, RequireJsModu
         return $this->options;
     }
 
-
     public function getRequireJsModules(): array
     {
-        return [
-            'TYPO3/CMS/T3Messenger/FailedMessages',
-        ];
+        return ['TYPO3/CMS/T3Messenger/FailedMessages'];
     }
 }
