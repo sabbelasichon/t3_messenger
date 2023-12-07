@@ -1,4 +1,4 @@
-define(['require', 'TYPO3/CMS/Backend/Modal', "TYPO3/CMS/Core/Event/RegularEvent", "TYPO3/CMS/Backend/Enum/Severity", "TYPO3/CMS/Core/Ajax/AjaxRequest",], function (require, Modal, Event, Severity, AjaxRequest) {
+define(['require', 'TYPO3/CMS/Backend/Modal', "TYPO3/CMS/Core/Event/RegularEvent", "TYPO3/CMS/Backend/Enum/Severity", "TYPO3/CMS/Core/Ajax/AjaxRequest", "TYPO3/CMS/T3Messenger/RefreshFailedMessages"], function (require, Modal, Event, Severity, AjaxRequest, RefreshWidget) {
     "use strict";
     return new class {
         constructor() {
@@ -25,6 +25,7 @@ define(['require', 'TYPO3/CMS/Backend/Modal', "TYPO3/CMS/Core/Event/RegularEvent
                             .post(JSON.stringify(payload))
                             .then(async function () {
                                 Modal.dismiss();
+                                RefreshWidget.refresh();
                             });
                     } else {
                         Modal.dismiss();

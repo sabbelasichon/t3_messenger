@@ -95,7 +95,7 @@ final class FailedMessageRepository implements SingletonInterface
             ));
         }
 
-        // $singleReceiver = new SingleMessageReceiver($failureTransport, $envelope);
+        $singleReceiver = new SingleMessageReceiver($failureTransport, $envelope);
         $this->runWorker($messageSpecification->getTransport(), $singleReceiver);
     }
 
