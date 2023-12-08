@@ -17,7 +17,6 @@
     "php": "^7.4 || ^8.0",
     "typo3/cms-core": "^10.4 || ^11.5 || ^12.4",
     "typo3/cms-extbase": "^10.4 || ^11.5 || ^12.4",
-    "typo3/cms-dashboard": "^10.4 || ^11.5 || ^12.4",
     "symfony/messenger": "^5.0 || ^6.2",
     "symfony/options-resolver": "^5.0 || ^6.2",
     "symfony/doctrine-messenger": "^5.0 || ^6.2",
@@ -91,7 +90,7 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-master": "1.0.x-dev"
+      "dev-master": "2.0.x-dev"
     },
     "typo3/cms": {
       "extension-key": "t3_messenger",

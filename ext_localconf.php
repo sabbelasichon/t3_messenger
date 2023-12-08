@@ -13,17 +13,4 @@ call_user_func(static function () {
             'groups' => ['system'],
         ];
     }
-
-    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScriptSetup(
-        "@import 'EXT:t3_messenger/Configuration/TypoScript/setup.typoscript'"
-    );
-
-    $iconRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Imaging\IconRegistry::class);
-    $iconRegistry->registerIcon(
-        'tx-messenger-failed-messages-icon',
-        \TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class,
-        [
-            'source' => 'EXT:t3_messenger/Resources/Public/Icons/failed-messages.svg',
-        ]
-    );
 });
