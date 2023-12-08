@@ -1,19 +1,19 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Call to an undefined method ReflectionClass\\:\\:getAttributes\\(\\)\\.$#"
+			count: 1
+			path: Classes/DependencyInjection/Compiler/T3MessengerPass.php
+
+		-
 			message: "#^Parameter \\#2 \\$packageCache of static method TYPO3\\\\CMS\\\\Core\\\\Core\\\\Bootstrap\\:\\:createPackageManager\\(\\) expects TYPO3\\\\CMS\\\\Core\\\\Package\\\\Cache\\\\PackageCacheInterface, TYPO3\\\\CMS\\\\Core\\\\Cache\\\\Frontend\\\\FrontendInterface given\\.$#"
 			count: 1
 			path: Classes/DependencyInjection/Compiler/T3MessengerPass.php
 
 		-
-			message: "#^Parameter \\#1 \\$mailer of class Ssch\\\\T3Messenger\\\\Mailer\\\\Event\\\\AfterMailerSentMessageEvent constructor expects Ssch\\\\T3Messenger\\\\Mailer\\\\Contract\\\\MailerInterface, \\$this\\(Ssch\\\\T3Messenger\\\\Mailer\\\\MessengerMailer\\) given\\.$#"
-			count: 1
-			path: Classes/Mailer/MessengerMailer.php
-
-		-
-			message: "#^Parameter \\#1 \\$mailer of class Ssch\\\\T3Messenger\\\\Mailer\\\\Event\\\\BeforeMailerSentMessageEvent constructor expects Ssch\\\\T3Messenger\\\\Mailer\\\\Contract\\\\MailerInterface, \\$this\\(Ssch\\\\T3Messenger\\\\Mailer\\\\MessengerMailer\\) given\\.$#"
-			count: 1
-			path: Classes/Mailer/MessengerMailer.php
+			message: "#^Class Doctrine\\\\DBAL\\\\Platforms\\\\PostgreSqlPlatform referenced with incorrect case\\: Doctrine\\\\DBAL\\\\Platforms\\\\PostgreSQLPlatform\\.$#"
+			count: 2
+			path: Classes/Transport/DoctrineTransportFactory.php
 
 		-
 			message: "#^Call to function method_exists\\(\\) with Symfony\\\\Component\\\\EventDispatcher\\\\DependencyInjection\\\\RegisterListenersPass and 'setNoPreloadEvents' will always evaluate to true\\.$#"
@@ -26,16 +26,6 @@ parameters:
 			path: Configuration/Services.php
 
 		-
-			message: "#^Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Amqp\\\\Transport\\\\AmqpTransportFactory not found\\.$#"
-			count: 1
-			path: Configuration/Services.php
-
-		-
 			message: "#^Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Beanstalkd\\\\Transport\\\\BeanstalkdTransportFactory not found\\.$#"
-			count: 1
-			path: Configuration/Services.php
-
-		-
-			message: "#^Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Redis\\\\Transport\\\\RedisTransportFactory not found\\.$#"
 			count: 1
 			path: Configuration/Services.php

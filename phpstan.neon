@@ -19,4 +19,6 @@ parameters:
   ignoreErrors:
     - "#Used function Symfony\\\\Component\\\\DependencyInjection\\\\Loader\\\\Configurator\\\\abstract_arg not found#"
     - "#Function Symfony\\\\Component\\\\DependencyInjection\\\\Loader\\\\Configurator\\\\abstract_arg not found#"
+    - "#Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Amqp\\\\Transport\\\\AmqpTransportFactory not found#"
+    - "#Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Redis\\\\Transport\\\\RedisTransportFactory not found#"
 
