@@ -15,13 +15,13 @@ use Psr\Log\LoggerInterface;
 use Ssch\T3Messenger\Dashboard\Widgets\Dto\MessageSpecification;
 use Ssch\T3Messenger\Domain\Dto\FailedMessage;
 use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\EventListener\StopWorkerOnMessageLimitListener;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\SentToFailureTransportStamp;
 use Symfony\Component\Messenger\Transport\Receiver\ListableReceiverInterface;
 use Symfony\Component\Messenger\Transport\Receiver\SingleMessageReceiver;
 use Symfony\Component\Messenger\Worker;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 use TYPO3\CMS\Core\SingletonInterface;
 
@@ -31,11 +31,11 @@ final class FailedMessageRepository implements SingletonInterface
 
     private MessageBusInterface $messageBus;
 
-    private EventDispatcherInterface $eventDispatcher;
+    private EventDispatcher $eventDispatcher;
 
     private LoggerInterface $logger;
 
-    public function __construct(ServiceProviderInterface $failureTransports, EventDispatcherInterface $eventDispatcher, MessageBusInterface $messageBus, LoggerInterface $logger)
+    public function __construct(ServiceProviderInterface $failureTransports, EventDispatcher $eventDispatcher, MessageBusInterface $messageBus, LoggerInterface $logger)
     {
         $this->failureTransports = $failureTransports;
         $this->messageBus = $messageBus;
@@ -87,7 +87,6 @@ final class FailedMessageRepository implements SingletonInterface
 
         $envelope = $failureTransport->find($messageSpecification->getId());
 
-        // $sentToFailureTransportStamp = $envelope->last(SentToFailureTransportStamp::class);
         if ($envelope === null) {
             throw new RuntimeException(sprintf(
                 'The message with id "%s" was not found.',
@@ -96,7 +95,21 @@ final class FailedMessageRepository implements SingletonInterface
         }
 
         $singleReceiver = new SingleMessageReceiver($failureTransport, $envelope);
-        $this->runWorker($messageSpecification->getTransport(), $singleReceiver);
+
+        $subscriber = new StopWorkerOnMessageLimitListener(1);
+        $this->eventDispatcher->addSubscriber($subscriber);
+
+        $worker = new Worker(
+            [
+                $messageSpecification->getTransport() => $singleReceiver,
+            ],
+            $this->messageBus,
+            $this->eventDispatcher,
+            $this->logger
+        );
+
+        $worker->run();
+        $this->eventDispatcher->removeSubscriber($subscriber);
     }
 
     /**
@@ -125,19 +138,5 @@ final class FailedMessageRepository implements SingletonInterface
         }
 
         return $failureTransport;
-    }
-
-    private function runWorker(string $transport, SingleMessageReceiver $receiver): void
-    {
-        $worker = new Worker(
-            [
-                $transport => $receiver,
-            ],
-            $this->messageBus,
-            $this->eventDispatcher,
-            $this->logger
-        );
-
-        $worker->run();
     }
 }
