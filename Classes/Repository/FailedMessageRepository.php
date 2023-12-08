@@ -50,8 +50,9 @@ final class FailedMessageRepository implements SingletonInterface
     {
         $allFailedMessages = [];
         foreach ($this->failureTransports->getProvidedServices() as $serviceId => $_) {
-            $failureTransport = $this->failureTransports->get($serviceId);
-            if (! $failureTransport instanceof ListableReceiverInterface) {
+            try {
+                $failureTransport = $this->getReceiver($serviceId);
+            } catch (\RuntimeException $runtimeException) {
                 continue;
             }
 
@@ -69,14 +70,7 @@ final class FailedMessageRepository implements SingletonInterface
     {
         $failureTransport = $this->getReceiver($messageSpecification->getTransport());
 
-        $envelope = $failureTransport->find($messageSpecification->getId());
-
-        if ($envelope === null) {
-            throw new RuntimeException(sprintf(
-                'The message with id "%s" was not found.',
-                $messageSpecification->getId()
-            ));
-        }
+        $envelope = $this->findMessage($messageSpecification->getId(), $failureTransport);
 
         $failureTransport->reject($envelope);
     }
@@ -85,14 +79,7 @@ final class FailedMessageRepository implements SingletonInterface
     {
         $failureTransport = $this->getReceiver($messageSpecification->getTransport());
 
-        $envelope = $failureTransport->find($messageSpecification->getId());
-
-        if ($envelope === null) {
-            throw new RuntimeException(sprintf(
-                'The message with id "%s" was not found.',
-                $messageSpecification->getId()
-            ));
-        }
+        $envelope = $this->findMessage($messageSpecification->getId(), $failureTransport);
 
         $singleReceiver = new SingleMessageReceiver($failureTransport, $envelope);
 
@@ -138,5 +125,18 @@ final class FailedMessageRepository implements SingletonInterface
         }
 
         return $failureTransport;
+    }
+
+    /**
+     * @param string|int $messageId
+     */
+    private function findMessage($messageId, ListableReceiverInterface $failureTransport): Envelope
+    {
+        $envelope = $failureTransport->find($messageId);
+        if ($envelope === null) {
+            throw new RuntimeException(sprintf('The message with id "%s" was not found.', $messageId));
+        }
+
+        return $envelope;
     }
 }

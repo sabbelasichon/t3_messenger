@@ -37,12 +37,15 @@ final class FailedMessage
 
     private string $transportName;
 
+    private string $shortMessageClass;
+
     /**
      * @param class-string $message
      * @param mixed $messageId
      */
     private function __construct(
         string $message,
+        string $shortMessageClass,
         string $errorMessage,
         DateTimeInterface $redelivered,
         int $retryCount,
@@ -55,6 +58,12 @@ final class FailedMessage
         $this->retryCount = $retryCount;
         $this->messageId = $messageId;
         $this->transportName = $transportName;
+        $this->shortMessageClass = $shortMessageClass;
+    }
+
+    public function getShortMessageClass(): string
+    {
+        return $this->shortMessageClass;
     }
 
     /**
@@ -116,6 +125,7 @@ final class FailedMessage
 
         return new self(
             get_class($failedMessage->getMessage()),
+            (new \ReflectionClass($failedMessage->getMessage()))->getShortName(),
             $errorMessage,
             $redeliveryStamp->getRedeliveredAt(),
             $redeliveryStamp->getRetryCount(),
