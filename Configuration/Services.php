@@ -401,23 +401,35 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     $containerBuilder->registerForAutoconfiguration(EventSubscriberInterface::class)
         ->addTag('kernel.event_subscriber');
 
-    // Compiler passes
-    $registerListenersPass = new RegisterListenersPass();
-    if (class_exists(ConsoleEvents::class) && method_exists($registerListenersPass, 'setNoPreloadEvents')) {
-        $registerListenersPass->setNoPreloadEvents([
-            ConsoleEvents::COMMAND,
-            ConsoleEvents::TERMINATE,
-            ConsoleEvents::ERROR,
-        ]);
+    $shouldAddRegisterListenersPass = true;
+    $beforeRemovingPasses = $containerBuilder->getCompilerPassConfig()
+        ->getBeforeRemovingPasses();
+    foreach ($beforeRemovingPasses as $beforeRemovingPass) {
+        if ($beforeRemovingPass instanceof RegisterListenersPass) {
+            $shouldAddRegisterListenersPass = false;
+            break;
+        }
+    }
+
+    if ($shouldAddRegisterListenersPass) {
+        // Compiler passes
+        $registerListenersPass = new RegisterListenersPass();
+        if (class_exists(ConsoleEvents::class) && method_exists($registerListenersPass, 'setNoPreloadEvents')) {
+            $registerListenersPass->setNoPreloadEvents([
+                ConsoleEvents::COMMAND,
+                ConsoleEvents::TERMINATE,
+                ConsoleEvents::ERROR,
+            ]);
+        }
+        // must be registered before removing private services as some might be listeners/subscribers
+        // but as late as possible to get resolved parameters
+        $containerBuilder->addCompilerPass($registerListenersPass, PassConfig::TYPE_BEFORE_REMOVING);
     }
 
     $services->set(ShowConfigurationCommand::class)->tag('console.command', [
         'command' => 't3_messenger:show-configuration',
     ]);
 
-    // must be registered before removing private services as some might be listeners/subscribers
-    // but as late as possible to get resolved parameters
-    $containerBuilder->addCompilerPass($registerListenersPass, PassConfig::TYPE_BEFORE_REMOVING);
     $containerBuilder->addCompilerPass(new MessengerMailerPass('event.listener'));
     $containerBuilder->addCompilerPass(new T3MessengerPass(new MessengerConfigurationResolver()));
     $containerBuilder->addCompilerPass(new MessengerPass());
