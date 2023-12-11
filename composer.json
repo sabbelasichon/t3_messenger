@@ -88,6 +88,9 @@
       ".Build/bin/phpunit --configuration Tests/Build/FunctionalTests.xml"
     ]
   },
+  "suggest": {
+    "ssch/t3-messenger-dashboard": "Adds a dashboard for failed messages"
+  },
   "extra": {
     "branch-alias": {
       "dev-main": "2.0.x-dev"
