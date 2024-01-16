@@ -178,7 +178,7 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ->public();
 
     $services->alias(SymfonyMailerInterface::class, MessengerMailer::class);
-    $services->alias(\TYPO3\CMS\Core\Mail\MailerInterface::class, MessengerMailer::class);
+    $services->alias(\TYPO3\CMS\Core\Mail\MailerInterface::class, MessengerMailer::class)->public();
     $services->set('mailer.logger_message_listener', MessageLoggerListener::class)
         ->tag('event.listener', [
             'method' => 'onMessage',
