@@ -32,6 +32,7 @@ use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Exception\LogicException;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
@@ -381,15 +382,38 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
     // Register autoconfiguration for message handlers via interface or attributes
     $containerBuilder->registerForAutoconfiguration(MessageHandlerInterface::class)
         ->addTag('messenger.message_handler');
-    $containerBuilder->registerAttributeForAutoconfiguration(
-        AsMessageHandler::class,
-        static function (ChildDefinition $definition, AsMessageHandler $attribute): void {
-            $tagAttributes = get_object_vars($attribute);
-            $tagAttributes['from_transport'] = $tagAttributes['fromTransport'];
-            unset($tagAttributes['fromTransport']);
-            $definition->addTag('messenger.message_handler', $tagAttributes);
-        }
-    );
+
+    if (PHP_VERSION_ID < 80000) {
+        $containerBuilder->registerAttributeForAutoconfiguration(
+            AsMessageHandler::class,
+            static function (ChildDefinition $definition, AsMessageHandler $attribute): void {
+                $tagAttributes = get_object_vars($attribute);
+                $tagAttributes['from_transport'] = $tagAttributes['fromTransport'];
+                unset($tagAttributes['fromTransport']);
+                $definition->addTag('messenger.message_handler', $tagAttributes);
+            }
+        );
+    } else {
+        $containerBuilder->registerAttributeForAutoconfiguration(
+            AsMessageHandler::class,
+            static function (ChildDefinition $definition, AsMessageHandler $attribute, $reflector): void {
+                $tagAttributes = get_object_vars($attribute);
+                $tagAttributes['from_transport'] = $tagAttributes['fromTransport'];
+                unset($tagAttributes['fromTransport']);
+                if ($reflector instanceof \ReflectionMethod) {
+                    if (isset($tagAttributes['method'])) {
+                        throw new LogicException(sprintf(
+                            'AsMessageHandler attribute cannot declare a method on "%s::%s()".',
+                            $reflector->class,
+                            $reflector->name
+                        ));
+                    }
+                    $tagAttributes['method'] = $reflector->getName();
+                }
+                $definition->addTag('messenger.message_handler', $tagAttributes);
+            }
+        );
+    }
 
     // Register autoconfiguration for transports
     $containerBuilder->registerForAutoconfiguration(TransportFactoryInterface::class)
