@@ -87,7 +87,7 @@ final class DoctrineTransportFactory implements TransportFactoryInterface
         }
 
         $connectionParams = $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections'][$connectionName] ?? [];
-        if (!is_array($connectionParams) || $connectionParams === []) {
+        if (! is_array($connectionParams) || $connectionParams === []) {
             throw new TransportException(
                 'The requested database connection named "' . $connectionName . '" has not been configured.',
             );
