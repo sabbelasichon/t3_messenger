@@ -15,6 +15,8 @@ use Doctrine\DBAL\Connection as DBALConnection;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Ssch\T3Messenger\Event\PreRejectEvent;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\DoctrineTransport;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Receiver\ListableReceiverInterface;
@@ -30,14 +32,18 @@ final class DoctrineTransportWrapper implements TransportInterface, SetupableTra
 
     private array $configuration;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     public function __construct(
         DoctrineTransport $doctrineTransport,
         array $configuration,
-        DBALConnection $driverConnection
+        DBALConnection $driverConnection,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->doctrineTransport = $doctrineTransport;
         $this->configuration = $configuration;
         $this->driverConnection = $driverConnection;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function setup(): void
@@ -75,6 +81,7 @@ final class DoctrineTransportWrapper implements TransportInterface, SetupableTra
 
     public function reject(Envelope $envelope): void
     {
+        $this->eventDispatcher->dispatch(new PreRejectEvent($envelope));
         $this->doctrineTransport->reject($envelope);
     }
 
