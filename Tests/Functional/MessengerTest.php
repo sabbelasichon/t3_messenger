@@ -129,7 +129,8 @@ final class MessengerTest extends FunctionalTestCase
 
         $events = array_filter(
             $preRejectEventListener->getEvents(),
-            fn (PreRejectEvent $event) => $event->getEnvelope()->last(SentToFailureTransportStamp::class) !== null
+            fn (PreRejectEvent $event) => $event->getEnvelope()
+                ->last(SentToFailureTransportStamp::class) !== null
         );
 
         self::assertCount(1, $events);
