@@ -14,6 +14,7 @@ namespace Ssch\T3Messenger\Transport;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Types\Type;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\Connection;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\DoctrineTransport;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\PostgreSqlConnection;
@@ -36,6 +37,13 @@ final class DoctrineTransportFactory implements TransportFactoryInterface
         EnumType::TYPE => EnumType::class,
         SetType::TYPE => SetType::class,
     ];
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    public function __construct(EventDispatcherInterface $eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
 
     /**
      * @param array<mixed> $options
@@ -64,8 +72,8 @@ final class DoctrineTransportFactory implements TransportFactoryInterface
 
         return new DoctrineTransportWrapper(new DoctrineTransport(
             $connection,
-            $serializer
-        ), $connection->getConfiguration(), $driverConnection);
+            $serializer,
+        ), $connection->getConfiguration(), $driverConnection, $this->eventDispatcher);
     }
 
     /**
