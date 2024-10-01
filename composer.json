@@ -32,7 +32,7 @@
     "phpstan/phpstan-strict-rules": "^1.4",
     "saschaegerer/phpstan-typo3": "^1.8",
     "phpstan/extension-installer": "^1.2",
-    "typo3/testing-framework": "^6.0 || ^7.0.2",
+    "typo3/testing-framework": "^8.2.2",
     "helhum/typo3-console": "^6.0 || ^7.1 || ^8.0",
     "typo3/minimal": "^10.4 || ^11.5 || ^12.4",
     "typo3/cms-lowlevel": "^10.4 || ^11.5 || ^12.4",
