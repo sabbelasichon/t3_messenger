@@ -19,7 +19,7 @@
     "typo3/cms-extbase": "^10.4 || ^11.5 || ^12.4",
     "symfony/messenger": "^5.0 || ^6.2",
     "symfony/options-resolver": "^5.0 || ^6.2",
-    "symfony/doctrine-messenger": "^5.0 || ^6.2",
+    "symfony/doctrine-messenger": "^7.1.5",
     "psr/cache": "^1.0 || ^2.0",
     "ssch/typo3-psr-cache-adapter": "^1.2",
     "ext-json": "*"
