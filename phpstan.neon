@@ -1,9 +1,9 @@
 includes:
     - phpstan-baseline.neon
 parameters:
-  phpVersion: 80100
+  phpVersion: 80200
   editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
-  level: 6
+  level: 8
   treatPhpDocTypesAsCertain: false
   reportUnmatchedIgnoredErrors: false
   paths:
@@ -15,9 +15,10 @@ parameters:
       -  Tests/Functional/Fixtures/Extensions/*
   ignoreErrors:
     - identifier: missingType.iterableValue
-    -  identifier: missingType.generics
+    - "#Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Amqp\\\\Transport\\\\AmqpTransportFactory not found#"
     - "#Used function Symfony\\\\Component\\\\DependencyInjection\\\\Loader\\\\Configurator\\\\abstract_arg not found#"
     - "#Function Symfony\\\\Component\\\\DependencyInjection\\\\Loader\\\\Configurator\\\\abstract_arg not found#"
-    - "#Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Amqp\\\\Transport\\\\AmqpTransportFactory not found#"
     - "#Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Redis\\\\Transport\\\\RedisTransportFactory not found#"
+    - "#Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\AmazonSqs\\\\Transport\\\\AmazonSqsTransportFactory not found#"
+    - "#Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Beanstalkd\\\\Transport\\\\BeanstalkdTransportFactory not found#"
 

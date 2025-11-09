@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\Tests\Unit\DependencyInjection;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
@@ -27,7 +28,7 @@ final class MessengerConfigurationResolverTest extends TestCase
     /**
      * @return \Generator<string, mixed>
      */
-    public function provideInvalidRetryStrategyConfigurations(): \Generator
+    public static function provideInvalidRetryStrategyConfigurations(): \Generator
     {
         yield 'Service option is defined along with other options' => [
             [
@@ -101,9 +102,8 @@ final class MessengerConfigurationResolverTest extends TestCase
 
     /**
      * @param array<mixed> $configuration
-     *
-     * @dataProvider provideInvalidRetryStrategyConfigurations
      */
+    #[DataProvider('provideInvalidRetryStrategyConfigurations')]
     public function testThatAnExceptionIsThrownIfTheTransportsRetryStrategyConfigurationIsInvalid(
         array $configuration
     ): void {

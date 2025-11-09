@@ -146,7 +146,15 @@ final class MessengerTest extends FunctionalTestCase
         /** @var TransportInterface $transport */
         $transport = $this->get('messenger.transport.async');
         $envelopes = $transport->get();
-        $siteStamp = $envelopes[0]->last(SiteStamp::class);
+
+        $firstEnvelope = null;
+        foreach ($envelopes as $envelope) {
+            $firstEnvelope = $envelope;
+            break;
+        }
+
+        self::assertNotEmpty($firstEnvelope);
+        $siteStamp = $firstEnvelope->last(SiteStamp::class);
 
         self::assertCount(1, $envelopes);
         self::assertInstanceOf(SiteStamp::class, $siteStamp);

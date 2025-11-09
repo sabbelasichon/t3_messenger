@@ -31,17 +31,17 @@ final class LoggingMiddleware implements MiddlewareInterface, LoggerAwareInterfa
     {
         $message = get_class($envelope->getMessage());
 
-        $this->logger->info(sprintf('Executing message "%s"', $message));
+        $this->logger?->info(sprintf('Executing message "%s"', $message));
 
         try {
             $nextEnvelope = $stack->next()
                 ->handle($envelope, $stack);
 
-            $this->logger->info(sprintf('Message "%s" successfully executed', $message));
+            $this->logger?->info(sprintf('Message "%s" successfully executed', $message));
 
             return $nextEnvelope;
         } catch (\Exception $exception) {
-            $this->logger->error(sprintf('Failed executing message "%s"', $message));
+            $this->logger?->error(sprintf('Failed executing message "%s"', $message));
 
             throw $exception;
         }

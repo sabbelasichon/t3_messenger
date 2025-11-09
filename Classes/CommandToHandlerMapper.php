@@ -75,6 +75,9 @@ final class CommandToHandlerMapper
         return ' (when ' . implode(', ', $optionsMapping) . ')';
     }
 
+    /**
+     * @phpstan-param class-string $class
+     */
     private static function getClassDescription(string $class): string
     {
         try {
@@ -82,12 +85,24 @@ final class CommandToHandlerMapper
 
             $docComment = $r->getDocComment();
 
-            if ($docComment) {
-                $docComment = preg_split('#\n\s*\*\s*[\n@]#', substr($docComment, 3, -2), 2)[0];
+            if (is_string($docComment) && $docComment !== '') {
+                $docComments = preg_split('#\n\s*\*\s*[\n@]#', substr($docComment, 3, -2), 2);
 
-                return trim(preg_replace('#\s*\n\s*\*\s*#', ' ', $docComment));
+                if ($docComments === false) {
+                    return '';
+                }
+
+                $docComment = $docComments[0];
+
+                $docComment = preg_replace('#\s*\n\s*\*\s*#', ' ', $docComment);
+
+                if (! is_string($docComment)) {
+                    return '';
+                }
+
+                return trim($docComment);
             }
-        } catch (\ReflectionException $e) {
+        } catch (\ReflectionException) {
         }
 
         return '';
