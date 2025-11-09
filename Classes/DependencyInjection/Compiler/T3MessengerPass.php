@@ -31,12 +31,10 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 use Symfony\Component\RateLimiter\LimiterInterface;
 use TYPO3\CMS\Core\Core\Bootstrap;
-use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Log\Channel;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Package\PackageManager;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Lowlevel\ConfigurationModuleProvider\AbstractProvider;
 
 final class T3MessengerPass implements CompilerPassInterface
@@ -345,15 +343,9 @@ final class T3MessengerPass implements CompilerPassInterface
 
     private function collectMessengerConfigurationsFromPackages(): array
     {
-        $versionInformation = GeneralUtility::makeInstance(Typo3Version::class);
-        if ($versionInformation->getMajorVersion() >= 11) {
-            $coreCache = Bootstrap::createCache('core');
-            $packageCache = Bootstrap::createPackageCache($coreCache);
-            $packageManager = Bootstrap::createPackageManager(PackageManager::class, $packageCache);
-        } else {
-            $coreCache = Bootstrap::createCache('core');
-            $packageManager = Bootstrap::createPackageManager(PackageManager::class, $coreCache);
-        }
+        $coreCache = Bootstrap::createCache('core');
+        $packageCache = Bootstrap::createPackageCache($coreCache);
+        $packageManager = Bootstrap::createPackageManager(PackageManager::class, $packageCache);
 
         $config = (new MessengerConfigurationCollector($packageManager))->collect();
         return $this->messengerConfigurationResolver->resolve($config->getArrayCopy());

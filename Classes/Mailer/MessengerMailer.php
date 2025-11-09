@@ -82,7 +82,7 @@ final class MessengerMailer implements MailerInterface
                 $this->sentMessage = $handledStamp->getResult();
             }
         } catch (HandlerFailedException $e) {
-            foreach ($e->getNestedExceptions() as $nested) {
+            foreach ($e->getWrappedExceptions() as $nested) {
                 if ($nested instanceof TransportExceptionInterface) {
                     throw $nested;
                 }

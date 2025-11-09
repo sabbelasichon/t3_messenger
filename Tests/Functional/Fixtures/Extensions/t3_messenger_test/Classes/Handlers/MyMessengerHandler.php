@@ -17,53 +17,39 @@ use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Clas
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyFailingCommand;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyOtherCommand;
 use Ssch\T3Messenger\Tests\Functional\Fixtures\Extensions\t3_messenger_test\Classes\Command\MyOtherFailingCommand;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class MyMessengerHandler implements MessageSubscriberInterface, LoggerAwareInterface
+final class MyMessengerHandler implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
+    #[AsMessageHandler]
     public function __invoke(MyOtherCommand $command): void
     {
         $this->logger->info(sprintf('Hi %s', $command->getNote()));
     }
 
+    #[AsMessageHandler]
     public function firstMessageMethod(MyCommand $command): void
     {
         $this->logger->info(sprintf('Hi %s', $command->getEmail()));
     }
 
+    #[AsMessageHandler]
     public function secondMessageMethod(MyOtherCommand $command): void
     {
         $this->logger->info(sprintf('Hi %s', $command->getNote()));
     }
 
+    #[AsMessageHandler]
     public function thirdMessageMethod(MyFailingCommand $command): void
     {
         throw new \InvalidArgumentException('Failing by intention');
     }
 
+    #[AsMessageHandler]
     public function fourthMessageMethod(MyOtherFailingCommand $command): void
     {
         throw new \InvalidArgumentException('Failing by intention');
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        yield MyCommand::class => [
-            'method' => 'firstMessageMethod',
-        ];
-
-        yield MyOtherCommand::class => [
-            'method' => 'secondMessageMethod',
-        ];
-
-        yield MyFailingCommand::class => [
-            'method' => 'thirdMessageMethod',
-        ];
-
-        yield MyOtherFailingCommand::class => [
-            'method' => 'fourthMessageMethod',
-        ];
     }
 }

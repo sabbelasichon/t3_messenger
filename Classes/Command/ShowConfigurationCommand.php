@@ -13,17 +13,18 @@ namespace Ssch\T3Messenger\Command;
 
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationCollector;
 use Ssch\T3Messenger\DependencyInjection\MessengerConfigurationResolver;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Package\PackageManager;
 
+#[AsCommand(
+    name: 't3messenger:show-configuration',
+    description: 'Show global Messenger configuration combined from all extensions'
+)]
 final class ShowConfigurationCommand extends Command
 {
-    protected static $defaultName = 'Show Messenger configuration';
-
-    protected static $defaultDescription = 'Show global Messenger configuration combined from all extensions';
-
     private MessengerConfigurationResolver $messengerConfigurationResolver;
 
     private PackageManager $packageManager;
