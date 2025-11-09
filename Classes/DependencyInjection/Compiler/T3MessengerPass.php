@@ -345,15 +345,9 @@ final class T3MessengerPass implements CompilerPassInterface
 
     private function collectMessengerConfigurationsFromPackages(): array
     {
-        $versionInformation = GeneralUtility::makeInstance(Typo3Version::class);
-        if ($versionInformation->getMajorVersion() >= 11) {
-            $coreCache = Bootstrap::createCache('core');
-            $packageCache = Bootstrap::createPackageCache($coreCache);
-            $packageManager = Bootstrap::createPackageManager(PackageManager::class, $packageCache);
-        } else {
-            $coreCache = Bootstrap::createCache('core');
-            $packageManager = Bootstrap::createPackageManager(PackageManager::class, $coreCache);
-        }
+        $coreCache = Bootstrap::createCache('core');
+        $packageCache = Bootstrap::createPackageCache($coreCache);
+        $packageManager = Bootstrap::createPackageManager(PackageManager::class, $packageCache);
 
         $config = (new MessengerConfigurationCollector($packageManager))->collect();
         return $this->messengerConfigurationResolver->resolve($config->getArrayCopy());
