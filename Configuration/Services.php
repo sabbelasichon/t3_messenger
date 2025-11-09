@@ -12,7 +12,6 @@ declare(strict_types=1);
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Ssch\Cache\Factory\Psr6Factory;
-use Ssch\T3Messenger\Command\ShowConfigurationCommand;
 use Ssch\T3Messenger\CommandToHandlerMapper;
 use Ssch\T3Messenger\ConfigurationModuleProvider\MessengerProvider;
 use Ssch\T3Messenger\DependencyInjection\Compiler\MessengerAlterTableListenerPass;
@@ -399,10 +398,6 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         // but as late as possible to get resolved parameters
         $containerBuilder->addCompilerPass($registerListenersPass, PassConfig::TYPE_BEFORE_REMOVING);
     }
-
-    $services->set(ShowConfigurationCommand::class)->tag('console.command', [
-        'command' => 't3_messenger:show-configuration',
-    ]);
 
     $containerBuilder->addCompilerPass(new MessengerMailerPass('event.listener'));
     $containerBuilder->addCompilerPass(new T3MessengerPass(new MessengerConfigurationResolver()));
