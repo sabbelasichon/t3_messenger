@@ -14,14 +14,14 @@
     }
   ],
   "require": {
-    "php": "^7.4 || ^8.0",
-    "typo3/cms-core": "^10.4 || ^11.5 || ^12.4",
-    "typo3/cms-extbase": "^10.4 || ^11.5 || ^12.4",
-    "symfony/messenger": "^5.0 || ^6.2",
-    "symfony/options-resolver": "^5.0 || ^6.2",
-    "symfony/doctrine-messenger": "^5.0 || ^6.2",
+    "php": "^8.1",
+    "typo3/cms-core": "^12.4",
+    "typo3/cms-extbase": "^12.4",
+    "symfony/messenger": "^6.2",
+    "symfony/options-resolver": "^6.2",
+    "symfony/doctrine-messenger": "^6.2",
     "psr/cache": "^1.0 || ^2.0",
-    "ssch/typo3-psr-cache-adapter": "^1.2",
+    "ssch/typo3-psr-cache-adapter": "^2.0",
     "ext-json": "*"
   },
   "require-dev": {
@@ -93,7 +93,7 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-main": "2.0.x-dev"
+      "dev-main": "3.0.x-dev"
     },
     "typo3/cms": {
       "extension-key": "t3_messenger",
