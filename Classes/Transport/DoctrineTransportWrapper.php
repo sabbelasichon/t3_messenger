@@ -90,7 +90,7 @@ final class DoctrineTransportWrapper implements TransportInterface, SetupableTra
         return $this->doctrineTransport->send($envelope);
     }
 
-    public function getSql(): ?AdditionalTransportTable
+    public function getSql(): AdditionalTransportTable
     {
         $schemaManager = $this->driverConnection->createSchemaManager();
 

@@ -23,7 +23,6 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\Schema\Types\EnumType;
 use TYPO3\CMS\Core\Database\Schema\Types\SetType;
 
 final class DoctrineTransportFactory implements TransportFactoryInterface
@@ -34,7 +33,6 @@ final class DoctrineTransportFactory implements TransportFactoryInterface
     private static array $connections = [];
 
     private array $customDoctrineTypes = [
-        EnumType::TYPE => EnumType::class,
         SetType::TYPE => SetType::class,
     ];
 
