@@ -1,24 +1,28 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Call to function method_exists\\(\\) with Symfony\\\\Component\\\\EventDispatcher\\\\DependencyInjection\\\\RegisterListenersPass and 'setNoPreloadEvents' will always evaluate to true\\.$#"
+			message: '''
+				#^Call to deprecated method setPrimaryKey\(\) of class Doctrine\\DBAL\\Schema\\Table\:
+				Use \{@see addPrimaryKeyConstraint\(\)\} instead\.$#
+			'''
+			identifier: method.deprecated
+			count: 1
+			path: Classes/Transport/DoctrineTransportWrapper.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Symfony\\Component\\EventDispatcher\\DependencyInjection\\RegisterListenersPass and ''setNoPreloadEvents'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
 			count: 1
 			path: Configuration/Services.php
 
 		-
-			message: "#^Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\AmazonSqs\\\\Transport\\\\AmazonSqsTransportFactory not found\\.$#"
+			message: '#^Class Symfony\\Component\\Messenger\\Bridge\\AmazonSqs\\Transport\\AmazonSqsTransportFactory not found\.$#'
+			identifier: class.notFound
 			count: 1
 			path: Configuration/Services.php
 
 		-
-			message: "#^Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Beanstalkd\\\\Transport\\\\BeanstalkdTransportFactory not found\\.$#"
-			count: 1
-			path: Configuration/Services.php
-
-		-
-			message: """
-				#^Fetching class constant class of deprecated class Symfony\\\\Component\\\\Messenger\\\\EventListener\\\\StopWorkerOnSigtermSignalListener\\:
-				since Symfony 6\\.3, use the \\{@see SignalableCommandInterface\\} instead$#
-			"""
+			message: '#^Class Symfony\\Component\\Messenger\\Bridge\\Beanstalkd\\Transport\\BeanstalkdTransportFactory not found\.$#'
+			identifier: class.notFound
 			count: 1
 			path: Configuration/Services.php

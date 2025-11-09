@@ -27,7 +27,7 @@ final class MessengerConfigurationResolverTest extends TestCase
     /**
      * @return \Generator<string, mixed>
      */
-    public function provideInvalidRetryStrategyConfigurations(): \Generator
+    public static function provideInvalidRetryStrategyConfigurations(): \Generator
     {
         yield 'Service option is defined along with other options' => [
             [
