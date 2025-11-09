@@ -51,7 +51,7 @@ final class MessengerTest extends FunctionalTestCase
         ];
 
         parent::setUp();
-        $this->importCSVDataSet(__DIR__ . '/Fixtures/Database/pages.xml');
+        $this->importCSVDataSet(__DIR__ . '/Fixtures/Database/pages.csv');
         $this->setUpFrontendRootPage(
             self::ROOT_PAGE_UID,
             ['EXT:t3_messenger/Tests/Functional/Fixtures/Configuration/TypoScript/Basic.typoscript']
