@@ -20,9 +20,9 @@ use TYPO3\CMS\Core\Package\PackageManager;
 
 final class ShowConfigurationCommand extends Command
 {
-    protected static $defaultName = 'Show Messenger configuration';
+    protected static string $defaultName = 'Show Messenger configuration';
 
-    protected static $defaultDescription = 'Show global Messenger configuration combined from all extensions';
+    protected static string $defaultDescription = 'Show global Messenger configuration combined from all extensions';
 
     private MessengerConfigurationResolver $messengerConfigurationResolver;
 

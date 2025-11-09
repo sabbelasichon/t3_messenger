@@ -92,14 +92,14 @@ final class DoctrineTransportWrapper implements TransportInterface, SetupableTra
 
     public function getSql(): ?AdditionalTransportTable
     {
-        $schemaManager = $this->driverConnection->getSchemaManager();
+        $schemaManager = $this->driverConnection->createSchemaManager();
 
         $tableName = $this->configuration['table_name'];
 
         if (! $schemaManager->tablesExist($tableName)) {
-            $table = $this->addTableToSchema($schemaManager->createSchema());
+            $table = $this->addTableToSchema($schemaManager->introspectSchema());
         } else {
-            $table = $schemaManager->listTableDetails($tableName);
+            $table = $schemaManager->introspectTable($tableName);
         }
 
         return new AdditionalTransportTable($tableName, $this->buildSchemaTableSQL(

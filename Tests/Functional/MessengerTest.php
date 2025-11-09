@@ -51,7 +51,7 @@ final class MessengerTest extends FunctionalTestCase
         ];
 
         parent::setUp();
-        $this->importDataSet(__DIR__ . '/Fixtures/Database/pages.xml');
+        $this->importCSVDataSet(__DIR__ . '/Fixtures/Database/pages.xml');
         $this->setUpFrontendRootPage(
             self::ROOT_PAGE_UID,
             ['EXT:t3_messenger/Tests/Functional/Fixtures/Configuration/TypoScript/Basic.typoscript']
@@ -141,7 +141,7 @@ final class MessengerTest extends FunctionalTestCase
     {
         $uri = new Uri($this->site->getBase()->__toString() . '/');
 
-        $this->executeFrontendRequest(new InternalRequest($uri->__toString()));
+        $this->executeFrontendSubRequest(new InternalRequest($uri->__toString()));
 
         /** @var TransportInterface $transport */
         $transport = $this->get('messenger.transport.async');

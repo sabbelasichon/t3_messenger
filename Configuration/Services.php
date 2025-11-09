@@ -62,9 +62,7 @@ use Symfony\Component\Messenger\EventListener\SendFailedMessageForRetryListener;
 use Symfony\Component\Messenger\EventListener\SendFailedMessageToFailureTransportListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnCustomStopExceptionListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
-use Symfony\Component\Messenger\EventListener\StopWorkerOnSigtermSignalListener;
 use Symfony\Component\Messenger\Handler\BatchHandlerInterface;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Middleware\AddBusNameStampMiddleware;
 use Symfony\Component\Messenger\Middleware\DispatchAfterCurrentBusMiddleware;
@@ -74,7 +72,7 @@ use Symfony\Component\Messenger\Middleware\RejectRedeliveredMessageMiddleware;
 use Symfony\Component\Messenger\Middleware\SendMessageMiddleware;
 use Symfony\Component\Messenger\Retry\MultiplierRetryStrategy;
 use Symfony\Component\Messenger\RoutableMessageBus;
-use Symfony\Component\Messenger\Transport\InMemoryTransportFactory;
+use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransportFactory;
 use Symfony\Component\Messenger\Transport\Sender\SendersLocator;
 use Symfony\Component\Messenger\Transport\Serialization\Normalizer\FlattenExceptionNormalizer;
 use Symfony\Component\Messenger\Transport\Serialization\PhpSerializer;
@@ -93,27 +91,6 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 return static function (ContainerConfigurator $containerConfigurator, ContainerBuilder $containerBuilder): void {
-    if (! class_exists(\TYPO3\CMS\Core\Mail\Event\AfterMailerSentMessageEvent::class, false)) {
-        class_alias(
-            \Ssch\T3Messenger\Mailer\Event\AfterMailerSentMessageEvent::class,
-            \TYPO3\CMS\Core\Mail\Event\AfterMailerSentMessageEvent::class
-        );
-    }
-
-    if (! class_exists(\TYPO3\CMS\Core\Mail\Event\BeforeMailerSentMessageEvent::class, false)) {
-        class_alias(
-            \Ssch\T3Messenger\Mailer\Event\BeforeMailerSentMessageEvent::class,
-            \TYPO3\CMS\Core\Mail\Event\BeforeMailerSentMessageEvent::class
-        );
-    }
-
-    if (! interface_exists(\TYPO3\CMS\Core\Mail\MailerInterface::class, false)) {
-        class_alias(
-            \Ssch\T3Messenger\Mailer\Contract\MailerInterface::class,
-            \TYPO3\CMS\Core\Mail\MailerInterface::class
-        );
-    }
-
     $services = $containerConfigurator->services();
     $services->defaults()
         ->private()
@@ -284,7 +261,6 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             StopWorkerOnCustomStopExceptionListener::class
         )
         ->tag('kernel.event_subscriber')
-        ->set('messenger.listener.stop_worker_on_sigterm_signal_listener', StopWorkerOnSigtermSignalListener::class)
         ->args([abstract_arg('messenger logger')])
         ->tag('kernel.event_subscriber')
         ->set(
@@ -379,8 +355,6 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
         ]);
 
     // Register autoconfiguration for message handlers via interface or attributes
-    $containerBuilder->registerForAutoconfiguration(MessageHandlerInterface::class)
-        ->addTag('messenger.message_handler');
     $containerBuilder->registerAttributeForAutoconfiguration(
         AsMessageHandler::class,
         static function (ChildDefinition $definition, AsMessageHandler $attribute): void {

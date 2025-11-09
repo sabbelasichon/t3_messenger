@@ -1,21 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Call to an undefined method ReflectionClass\\:\\:getAttributes\\(\\)\\.$#"
-			count: 1
-			path: Classes/DependencyInjection/Compiler/T3MessengerPass.php
-
-		-
-			message: "#^Parameter \\#2 \\$packageCache of static method TYPO3\\\\CMS\\\\Core\\\\Core\\\\Bootstrap\\:\\:createPackageManager\\(\\) expects TYPO3\\\\CMS\\\\Core\\\\Package\\\\Cache\\\\PackageCacheInterface, TYPO3\\\\CMS\\\\Core\\\\Cache\\\\Frontend\\\\FrontendInterface given\\.$#"
-			count: 1
-			path: Classes/DependencyInjection/Compiler/T3MessengerPass.php
-
-		-
-			message: "#^Class Doctrine\\\\DBAL\\\\Platforms\\\\PostgreSqlPlatform referenced with incorrect case\\: Doctrine\\\\DBAL\\\\Platforms\\\\PostgreSQLPlatform\\.$#"
-			count: 2
-			path: Classes/Transport/DoctrineTransportFactory.php
-
-		-
 			message: "#^Call to function method_exists\\(\\) with Symfony\\\\Component\\\\EventDispatcher\\\\DependencyInjection\\\\RegisterListenersPass and 'setNoPreloadEvents' will always evaluate to true\\.$#"
 			count: 1
 			path: Configuration/Services.php

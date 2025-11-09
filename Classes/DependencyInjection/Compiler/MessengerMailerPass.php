@@ -25,8 +25,8 @@ final class MessengerMailerPass implements CompilerPassInterface
      * @var array<class-string, class-string>
      */
     private array $additionalEvents = [
-        BeforeMailerSentMessageEvent::class => \Ssch\T3Messenger\Mailer\Event\BeforeMailerSentMessageEvent::class,
-        AfterMailerSentMessageEvent::class => \Ssch\T3Messenger\Mailer\Event\AfterMailerSentMessageEvent::class,
+        BeforeMailerSentMessageEvent::class => BeforeMailerSentMessageEvent::class,
+        AfterMailerSentMessageEvent::class => AfterMailerSentMessageEvent::class,
     ];
 
     public function __construct(string $tagName)
