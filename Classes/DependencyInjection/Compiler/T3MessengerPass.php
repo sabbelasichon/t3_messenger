@@ -337,6 +337,7 @@ final class T3MessengerPass implements CompilerPassInterface
         }
 
         $this->addLoggerArgument($container, 'console.command.messenger_consume_messages', 3);
+        $this->addLoggerArgument($container, 'messenger.listener.stop_worker_on_sigterm_signal_listener', 0);
         $this->addLoggerArgument($container, 'messenger.retry.send_failed_message_for_retry_listener', 2);
     }
 
