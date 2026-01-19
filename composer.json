@@ -20,7 +20,7 @@
     "symfony/messenger": "^7.0",
     "symfony/options-resolver": "^7.0",
     "symfony/doctrine-messenger": "^7.0",
-    "psr/cache": "^2.0",
+    "psr/cache": "^2.0 || ^3.0",
     "ssch/typo3-psr-cache-adapter": "^2.0",
     "ext-json": "*"
   },
