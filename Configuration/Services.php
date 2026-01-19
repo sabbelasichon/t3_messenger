@@ -64,7 +64,6 @@ use Symfony\Component\Messenger\EventListener\SendFailedMessageForRetryListener;
 use Symfony\Component\Messenger\EventListener\SendFailedMessageToFailureTransportListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnCustomStopExceptionListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
-use Symfony\Component\Messenger\EventListener\StopWorkerOnSigtermSignalListener;
 use Symfony\Component\Messenger\Handler\BatchHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Middleware\AddBusNameStampMiddleware;
@@ -260,9 +259,6 @@ return static function (ContainerConfigurator $containerConfigurator, ContainerB
             'messenger.listener.stop_worker_on_stop_exception_listener',
             StopWorkerOnCustomStopExceptionListener::class
         )
-        ->tag('kernel.event_subscriber')
-        ->set('messenger.listener.stop_worker_on_sigterm_signal_listener', StopWorkerOnSigtermSignalListener::class)
-        ->args([abstract_arg('messenger logger')])
         ->tag('kernel.event_subscriber')
         ->set(
             'messenger.listener.extbase_persistence_clear_state_listener',

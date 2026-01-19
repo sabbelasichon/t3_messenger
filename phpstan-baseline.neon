@@ -1,24 +1,7 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Call to function method_exists\\(\\) with Symfony\\\\Component\\\\EventDispatcher\\\\DependencyInjection\\\\RegisterListenersPass and 'setNoPreloadEvents' will always evaluate to true\\.$#"
-			count: 1
-			path: Configuration/Services.php
-
-		-
-			message: "#^Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\AmazonSqs\\\\Transport\\\\AmazonSqsTransportFactory not found\\.$#"
-			count: 1
-			path: Configuration/Services.php
-
-		-
-			message: "#^Class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Beanstalkd\\\\Transport\\\\BeanstalkdTransportFactory not found\\.$#"
-			count: 1
-			path: Configuration/Services.php
-
-		-
-			message: """
-				#^Fetching class constant class of deprecated class Symfony\\\\Component\\\\Messenger\\\\EventListener\\\\StopWorkerOnSigtermSignalListener\\:
-				since Symfony 6\\.3, use the \\{@see SignalableCommandInterface\\} instead$#
-			"""
+			message: '#^Call to function method_exists\(\) with Symfony\\Component\\EventDispatcher\\DependencyInjection\\RegisterListenersPass and ''setNoPreloadEvents'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
 			count: 1
 			path: Configuration/Services.php

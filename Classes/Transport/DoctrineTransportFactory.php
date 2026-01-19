@@ -23,9 +23,11 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\Schema\Types\EnumType;
 use TYPO3\CMS\Core\Database\Schema\Types\SetType;
 
+/**
+ * @implements TransportFactoryInterface<DoctrineTransportWrapper>
+ */
 final class DoctrineTransportFactory implements TransportFactoryInterface
 {
     /**
@@ -34,7 +36,6 @@ final class DoctrineTransportFactory implements TransportFactoryInterface
     private static array $connections = [];
 
     private array $customDoctrineTypes = [
-        EnumType::TYPE => EnumType::class,
         SetType::TYPE => SetType::class,
     ];
 
@@ -110,6 +111,9 @@ final class DoctrineTransportFactory implements TransportFactoryInterface
         if (Environment::getContext()->isTesting()) {
             unset($connectionParams['wrapperClass']);
         }
+
+        $connectionParams['port'] = $connectionParams['port'] ?? 3306;
+        $connectionParams['port'] = (int) $connectionParams['port'];
 
         $connection = DriverManager::getConnection($connectionParams);
 

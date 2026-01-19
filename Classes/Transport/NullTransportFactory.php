@@ -15,6 +15,9 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 
+/**
+ * @implements TransportFactoryInterface<NullTransport>
+ */
 final class NullTransportFactory implements TransportFactoryInterface
 {
     public function createTransport(string $dsn, array $options, SerializerInterface $serializer): TransportInterface

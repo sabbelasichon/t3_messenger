@@ -337,7 +337,6 @@ final class T3MessengerPass implements CompilerPassInterface
         }
 
         $this->addLoggerArgument($container, 'console.command.messenger_consume_messages', 3);
-        $this->addLoggerArgument($container, 'messenger.listener.stop_worker_on_sigterm_signal_listener', 0);
         $this->addLoggerArgument($container, 'messenger.retry.send_failed_message_for_retry_listener', 2);
     }
 
@@ -351,6 +350,9 @@ final class T3MessengerPass implements CompilerPassInterface
         return $this->messengerConfigurationResolver->resolve($config->getArrayCopy());
     }
 
+    /**
+     * @param \ReflectionClass<object> $class
+     */
     private function getClassChannelName(\ReflectionClass $class): ?string
     {
         // Attribute channel definition is only supported on PHP 8 and later.

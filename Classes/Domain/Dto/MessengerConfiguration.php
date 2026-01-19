@@ -11,6 +11,9 @@ declare(strict_types=1);
 
 namespace Ssch\T3Messenger\Domain\Dto;
 
+/**
+ * @extends \ArrayObject<string, string>
+ */
 final class MessengerConfiguration extends \ArrayObject
 {
     /**

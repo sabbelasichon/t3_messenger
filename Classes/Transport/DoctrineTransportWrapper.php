@@ -12,6 +12,9 @@ declare(strict_types=1);
 namespace Ssch\T3Messenger\Transport;
 
 use Doctrine\DBAL\Connection as DBALConnection;
+use Doctrine\DBAL\Schema\Name\Identifier;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -90,13 +93,13 @@ final class DoctrineTransportWrapper implements TransportInterface, SetupableTra
         return $this->doctrineTransport->send($envelope);
     }
 
-    public function getSql(): ?AdditionalTransportTable
+    public function getSql(): AdditionalTransportTable
     {
         $schemaManager = $this->driverConnection->createSchemaManager();
 
         $tableName = $this->configuration['table_name'];
 
-        if (! $schemaManager->tablesExist($tableName)) {
+        if (! $schemaManager->tablesExist([$tableName])) {
             $table = $this->addTableToSchema($schemaManager->introspectSchema());
         } else {
             $table = $schemaManager->introspectTable($tableName);
@@ -133,8 +136,9 @@ final class DoctrineTransportWrapper implements TransportInterface, SetupableTra
         $table = $schema->createTable($this->configuration['table_name']);
         // add an internal option to mark that we created this & the non-namespaced table name
         $table->addOption('_symfony_messenger_table_name', $this->configuration['table_name']);
-        $table->addColumn('id', Types::BIGINT)
+        $table->addColumn('id', Types::INTEGER)
             ->setAutoincrement(true)
+            ->setUnsigned(true)
             ->setNotnull(true);
         $table->addColumn('body', Types::TEXT)
             ->setNotnull(true);
@@ -149,7 +153,9 @@ final class DoctrineTransportWrapper implements TransportInterface, SetupableTra
             ->setNotnull(true);
         $table->addColumn('delivered_at', Types::DATETIME_MUTABLE)
             ->setNotnull(false);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            new PrimaryKeyConstraint(null, [new UnqualifiedName(Identifier::unquoted('id'))], true)
+        );
         $table->addIndex(['queue_name']);
         $table->addIndex(['available_at']);
         $table->addIndex(['delivered_at']);

@@ -34,10 +34,7 @@ final class AlterTableDefinitionStatementsEventListener
             $transport = $this->transportLocator->get($transportName);
             if ($transport instanceof DoctrineTransportWrapper) {
                 $additionalTable = $transport->getSql();
-                if ($additionalTable !== null && ! array_key_exists(
-                    $additionalTable->getTableName(),
-                    $additionalStatements
-                )) {
+                if (! array_key_exists($additionalTable->getTableName(), $additionalStatements)) {
                     $additionalStatements[$additionalTable->getTableName()] = $additionalTable->getSql() . ';';
                 }
             }

@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Package\PackageManager;
 
 #[AsCommand(
-    name: 't3messenger:show-configuration',
+    name: 't3_messenger:show-configuration',
     description: 'Show global Messenger configuration combined from all extensions'
 )]
 final class ShowConfigurationCommand extends Command

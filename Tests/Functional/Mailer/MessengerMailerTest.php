@@ -63,6 +63,6 @@ final class MessengerMailerTest extends FunctionalTestCase
         $this->assertQueuedEmailCount(1, 'null://');
         $this->assertEmailHasHeader($mailMessage, 'X-Mailer');
         self::assertSame('This is modified by an event', $mailMessage->getSubject());
-        self::assertEquals($mailMessage, $this->subject->getSentMessage()->getOriginalMessage());
+        self::assertEquals($mailMessage, $this->subject->getSentMessage()?->getOriginalMessage());
     }
 }
