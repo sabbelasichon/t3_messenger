@@ -56,7 +56,7 @@ final class MessengerMailer implements MailerInterface
         $this->bus = $bus;
     }
 
-    public function send(RawMessage $message, Envelope $envelope = null): void
+    public function send(RawMessage $message, ?Envelope $envelope = null): void
     {
         $this->mailValidityResolver->resolve($message);
 

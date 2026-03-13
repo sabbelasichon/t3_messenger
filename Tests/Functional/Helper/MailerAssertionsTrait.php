@@ -18,7 +18,7 @@ use Symfony\Component\Mime\Test\Constraint as MimeConstraint;
 
 trait MailerAssertionsTrait
 {
-    public function assertQueuedEmailCount(int $count, string $transport = null, string $message = ''): void
+    public function assertQueuedEmailCount(int $count, ?string $transport = null, string $message = ''): void
     {
         self::assertThat(
             $this->getMessageMailerEvents(),
@@ -40,13 +40,13 @@ trait MailerAssertionsTrait
     /**
      * @return RawMessage[]
      */
-    public function getMailerMessages(string $transport = null): array
+    public function getMailerMessages(?string $transport = null): array
     {
         return $this->getMessageMailerEvents()
             ->getMessages($transport);
     }
 
-    public function getMailerMessage(int $index = 0, string $transport = null): ?RawMessage
+    public function getMailerMessage(int $index = 0, ?string $transport = null): ?RawMessage
     {
         return $this->getMailerMessages($transport)[$index] ?? null;
     }

@@ -54,7 +54,7 @@ final class DoctrineTransportWrapper implements TransportInterface, SetupableTra
         $this->doctrineTransport->setup();
     }
 
-    public function all(int $limit = null): iterable
+    public function all(?int $limit = null): iterable
     {
         return $this->doctrineTransport->all($limit);
     }
